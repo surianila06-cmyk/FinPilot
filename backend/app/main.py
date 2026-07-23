@@ -35,7 +35,8 @@ async def root():
     return {
         "status": "success",
         "message": "FinPilot AI Backend is running!"
-    }from fastapi import FastAPI
+    }
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.profile import router as profile_router
