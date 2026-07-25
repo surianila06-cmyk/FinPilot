@@ -1,6 +1,3 @@
-from app.services.ai_advisor import generate_advice
-
-
 def budget_analysis(profile):
 
     income = profile.get("monthly_income", 0)
@@ -15,21 +12,26 @@ def budget_analysis(profile):
         expense_ratio = expenses / income
 
 
-    context = {
-        "goal": "Optimize monthly budget",
-        "monthly_income": f"₹{income:,}",
-        "monthly_expenses": f"₹{expenses:,}",
-        "monthly_surplus": f"₹{monthly_surplus:,}",
-        "current_savings": f"₹{savings:,}",
-        "expense_ratio": f"{round(expense_ratio * 100,2)}%"
-    }
+    if expense_ratio < 0.5:
+        message = (
+        f"✅ Your spending looks healthy.\n\n"
+        f"Monthly Income: ₹{income:,}\n"
+        f"Monthly Expenses: ₹{expenses:,}\n"
+        f"Monthly Surplus: ₹{monthly_surplus:,}\n\n"
+        "Keep saving regularly and consider investing for long-term goals."
+    )
 
-
-    advice = generate_advice(context)
-
-
+    else:
+        message = (
+        f"⚠ Your expenses are taking up a large portion of your income.\n\n"
+        f"Monthly Income: ₹{income:,}\n"
+        f"Monthly Expenses: ₹{expenses:,}\n"
+        f"Monthly Surplus: ₹{monthly_surplus:,}\n\n"
+        "Suggestions:\n"
+        "• Reduce unnecessary spending.\n"
+        "• Track your monthly budget.\n"
+        "• Increase your emergency savings."
+    )
     return {
-        "monthly_surplus": monthly_surplus,
-        "expense_ratio": round(expense_ratio * 100, 2),
-        "ai_recommendation": advice
-    }
+    "message": message
+}

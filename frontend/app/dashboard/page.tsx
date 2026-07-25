@@ -29,12 +29,15 @@ export default function Dashboard() {
     }
   }, []);
 
+  const healthScore = score?.score ?? score ?? 0;
+
   return (
     <main className="min-h-screen bg-gray-100">
-
       <Navbar />
 
       <div className="p-10">
+
+        {/* Header */}
 
         <div className="flex justify-between items-center">
 
@@ -56,33 +59,53 @@ export default function Dashboard() {
 
         </div>
 
+        {/* Cards */}
+
         <div className="grid md:grid-cols-2 gap-8 mt-10">
 
           <FinancialCard
             title="Monthly Income"
-            value={`₹${profile?.monthly_income ?? "0"}`}
+            value={
+              profile?.monthly_income
+                ? `₹${profile.monthly_income.toLocaleString()}`
+                : "Not Available"
+            }
             icon={<CircleDollarSign size={32} color="#2563eb" />}
           />
 
           <FinancialCard
             title="Savings"
-            value={`₹${profile?.savings ?? "0"}`}
+            value={
+              profile?.savings > 0
+                ? `₹${profile.savings.toLocaleString()}`
+                : "Not Available"
+            }
             icon={<PiggyBank size={32} color="#16a34a" />}
           />
 
           <FinancialCard
-  title="Monthly Expenses"
-  value={`₹${profile?.monthly_expenses ?? "0"}`}
-  icon={<Wallet size={32} color="#ea580c" />}
-/>
+            title="Monthly Expenses"
+            value={
+              profile?.monthly_expenses > 0
+                ? `₹${profile.monthly_expenses.toLocaleString()}`
+                : "Not Available"
+            }
+            icon={<Wallet size={32} color="#ea580c" />}
+          />
 
-<FinancialCard
-  title="Loans"
-  value={`₹${profile?.loans ?? "0"}`}
-  icon={<Landmark size={32} color="#dc2626" />}
-/>
+          <FinancialCard
+            title="Loans"
+            value={
+              profile?.loans > 0
+                ? `₹${profile.loans.toLocaleString()}`
+                : "No Active Loans"
+            }
+            icon={<Landmark size={32} color="#dc2626" />}
+          />
 
         </div>
+
+        {/* Financial Health Score */}
 
         <div className="bg-white rounded-2xl shadow-lg mt-10 p-10">
 
@@ -91,25 +114,118 @@ export default function Dashboard() {
           </h2>
 
           <p className="text-7xl font-bold mt-8">
-            {score?.score ?? score ?? 0}
+            {healthScore}
           </p>
 
           <div className="w-full bg-gray-200 rounded-full h-5 mt-6">
-
             <div
               className="bg-green-500 h-5 rounded-full"
               style={{
-                width: `${score?.score ?? score ?? 0}%`,
+                width: `${healthScore}%`,
               }}
             ></div>
+          </div>
+
+          <p className="text-gray-600 mt-4 text-lg font-semibold">
+            {healthScore >= 80
+              ? "🟢 Excellent Financial Health"
+              : healthScore >= 60
+              ? "🟡 Good Financial Health"
+              : healthScore >= 40
+              ? "🟠 Average Financial Health"
+              : "🔴 Needs Improvement"}
+          </p>
+
+          <p className="text-gray-500 mt-2">
+            This score is calculated based on your income, expenses, savings,
+            loans and insurance details.
+          </p>
+
+        </div>
+
+        {/* AI Insights */}
+
+        <div className="bg-white rounded-2xl shadow-lg mt-10 p-8">
+
+          <h2 className="text-2xl font-bold text-blue-600">
+            💡 AI Insights
+          </h2>
+
+          <div className="mt-6 space-y-4">
+
+            <div className="flex items-center gap-3 bg-blue-50 p-4 rounded-xl">
+              <span className="text-2xl">💰</span>
+
+              <div>
+                <p className="font-semibold">Monthly Income</p>
+
+                <p className="text-gray-600">
+                  {profile?.monthly_income
+                    ? `₹${profile.monthly_income.toLocaleString()}`
+                    : "Not Available"}
+                </p>
+              </div>
+
+            </div>
+
+            <div className="flex items-center gap-3 bg-orange-50 p-4 rounded-xl">
+              <span className="text-2xl">📊</span>
+
+              <div>
+                <p className="font-semibold">
+                  Estimated Monthly Expenses
+                </p>
+
+                <p className="text-gray-600">
+                  {profile?.monthly_expenses
+                    ? `₹${profile.monthly_expenses.toLocaleString()}`
+                    : "Not Available"}
+                </p>
+              </div>
+
+            </div>
+
+            <div className="flex items-center gap-3 bg-green-50 p-4 rounded-xl">
+              <span className="text-2xl">🛡</span>
+
+              <div>
+                <p className="font-semibold">Insurance</p>
+
+                <p className="text-gray-600">
+                  {profile?.insurance
+                    ? `₹${profile.insurance.toLocaleString()}`
+                    : "Not Available"}
+                </p>
+              </div>
+
+            </div>
+
+            <div className="flex items-center gap-3 bg-purple-50 p-4 rounded-xl">
+              <span className="text-2xl">🏦</span>
+
+              <div>
+                <p className="font-semibold">Loan Status</p>
+
+                <p className="text-gray-600">
+                  {profile?.loans > 0
+                    ? `Outstanding Loan: ₹${profile.loans.toLocaleString()}`
+                    : "No Active Loans"}
+                </p>
+              </div>
+
+            </div>
 
           </div>
 
-          <div className="mt-8">
+        </div>
 
-  <h3 className="text-xl font-bold text-blue-600">
+        {/* AI Financial Summary */}
+
+<div className="bg-white rounded-2xl shadow-lg mt-10 p-8">
+
+  <h2 className="text-2xl font-bold text-blue-600">
     AI Financial Summary
-  </h3>
+  </h2>
 
   <div className="mt-5 space-y-4">
 
@@ -118,7 +234,7 @@ export default function Dashboard() {
     </div>
 
     <div className="bg-green-50 rounded-xl p-4">
-      ✅ Financial Health Score: {score ?? 0}/100
+      ✅ Financial Health Score: {healthScore}/100
     </div>
 
     <div className="bg-yellow-50 rounded-xl p-4">
@@ -133,7 +249,7 @@ export default function Dashboard() {
 
 </div>
 
-        </div>
+       
 
       </div>
 

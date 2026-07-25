@@ -71,32 +71,65 @@ export default function ChatPage() {
 
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
 
-            {messages.map((message, index) => (
+  {messages.map((message, index) => (
 
-              <div
-                key={index}
-                className={`flex ${
-                  message.sender === "user"
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
+    <div
+      key={index}
+      className={`flex ${
+        message.sender === "user"
+          ? "justify-end"
+          : "justify-start"
+      }`}
+    >
 
-                <div
-                  className={`max-w-md rounded-2xl px-5 py-3 ${
-                    message.sender === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-black"
-                  }`}
-                >
-                  {message.text}
-                </div>
+      <div className="flex items-start gap-3">
 
-              </div>
-
-            ))}
-
+        {message.sender === "ai" && (
+          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+            AI
           </div>
+        )}
+
+        {message.sender === "user" && (
+          <div className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold">
+            You
+          </div>
+        )}
+
+        <div
+          className={`max-w-xl rounded-2xl px-5 py-4 whitespace-pre-line ${
+            message.sender === "user"
+              ? "bg-blue-600 text-white"
+              : "bg-white shadow text-gray-800"
+          }`}
+        >
+          {message.text}
+        </div>
+
+      </div>
+
+    </div>
+
+  ))}
+
+  {/* 👇 Add this right here */}
+  {loading && (
+    <div className="flex justify-start">
+      <div className="flex items-center gap-3">
+
+        <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+          AI
+        </div>
+
+        <div className="bg-white shadow rounded-2xl px-5 py-4">
+          🤖 FinPilot is thinking...
+        </div>
+
+      </div>
+    </div>
+  )}
+
+</div>
             <div className="px-5 pt-5">
 
   <p className="text-gray-600 font-semibold mb-3">
@@ -139,11 +172,16 @@ export default function ChatPage() {
           <div className="border-t p-5 flex gap-4">
 
             <input
-              className="flex-1 border rounded-xl px-4 py-3"
-              placeholder="Ask about loans, gold, savings..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
+  className="flex-1 border rounded-xl px-4 py-3"
+  placeholder="Ask about loans, gold, savings..."
+  value={input}
+  onChange={(e) => setInput(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  }}
+/>
 
             <button
               onClick={sendMessage}
