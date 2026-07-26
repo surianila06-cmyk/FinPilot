@@ -1,4 +1,4 @@
-const BASE_URL = "https://finpilot-backend-jodg.onrender.com";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://finpilot-backend-jodg.onrender.com";
 
 export async function uploadPDF(file: File) {
   const formData = new FormData();
