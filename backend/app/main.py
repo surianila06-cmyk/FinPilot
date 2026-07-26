@@ -16,9 +16,12 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # React (Vite)
-        "http://localhost:3000",  # Next.js / CRA
-    ],
+    "http://localhost:5173",
+    "http://localhost:3000",
+
+    "https://fin-pilot-i3by0p0kf-surianila06-cmyks-projects.vercel.app",
+    "https://fin-pilot-zeta.vercel.app",
+]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
