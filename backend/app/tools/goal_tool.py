@@ -1,20 +1,13 @@
-from app.services.ai_advisor import generate_advice
-
-
 def goal_analysis(profile, query):
 
     income = profile.get("monthly_income", 0)
     savings = profile.get("savings", 0)
 
-    # Default values
     goal_amount = 0
     goal_name = "financial goal"
     years = 1
 
-
-    # Simple extraction from user query
     query_lower = query.lower()
-
 
     if "bike" in query_lower:
         goal_name = "bike"
@@ -36,30 +29,29 @@ def goal_analysis(profile, query):
         goal_amount = 100000
         years = 1
 
-
     monthly_required = goal_amount / (years * 12)
-
-
     affordable = savings >= goal_amount
 
-    context = {
-        "goal": goal_name,
-        "goal_amount": f"₹{goal_amount:,}",
-        "target_duration": f"{years} years",
-        "monthly_saving_required": f"₹{round(monthly_required):,}",
-        "monthly_income": f"₹{income:,}",
-        "current_savings": f"₹{savings:,}",
-        "already_affordable": affordable,
-        "financial_score": profile.get("financial_score", 0)
-    }
+    if affordable:
+        advice = (
+            f"✅ You can afford the {goal_name}.\n\n"
+            f"Estimated Cost: ₹{goal_amount:,}\n\n"
+            "Make sure you still have enough emergency savings after the purchase."
+        )
 
-
-    advice = generate_advice(context)
-
+    else:
+        advice = (
+            f"⚠ Buying a {goal_name} right now may not be the best decision.\n\n"
+            f"Estimated Cost: ₹{goal_amount:,}\n"
+            f"Monthly Income: ₹{income:,}\n"
+            f"Current Savings: ₹{savings:,}\n\n"
+            f"You should save about ₹{round(monthly_required):,} every month for {years} years.\n\n"
+            "Suggestions:\n"
+            "• Increase monthly savings.\n"
+            "• Reduce unnecessary expenses.\n"
+            "• Avoid taking unnecessary loans."
+        )
 
     return {
-        "goal": goal_name,
-        "goal_amount": goal_amount,
-        "monthly_required": round(monthly_required),
-        "ai_recommendation": advice
+        "message": advice
     }

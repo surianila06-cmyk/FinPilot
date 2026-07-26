@@ -20,6 +20,7 @@ export default function UploadPage() {
       setLoading(true);
 
       const result = await uploadPDF(file);
+      console.log("Backend Response:", result);
 
       // Save returned data for other pages
       localStorage.setItem(
@@ -31,7 +32,8 @@ export default function UploadPage() {
         "financialScore",
         JSON.stringify(result.financial_score)
       );
-
+      console.log("Stored Profile:", localStorage.getItem("financialProfile"));
+      console.log("Stored Score:", localStorage.getItem("financialScore"));
       router.push("/dashboard");
     } catch (error) {
       console.error(error);

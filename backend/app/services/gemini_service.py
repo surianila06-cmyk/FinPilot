@@ -8,24 +8,59 @@ client = Groq(api_key=GROQ_API_KEY)
 def extract_financial_profile(text: str):
 
     prompt = f"""
-You are an expert financial document parser.
+You are an expert AI financial document parser.
 
-Extract the following information from the document.
+Analyze the financial document carefully and extract the user's financial profile.
 
-Return ONLY valid JSON.
+IMPORTANT RULES:
 
-Schema:
+- Return ONLY valid JSON.
+- Do not include markdown.
+- Do not include explanations.
+- All amounts must be numeric (no ₹, commas or text).
+- Use Indian Rupees (INR).
+- Never invent unrealistic values.
+
+Extraction Rules:
+
+1. monthly_income
+- Prefer Net Salary.
+- If Net Salary is unavailable, use Gross Salary.
+
+2. monthly_expenses
+- If Total Deductions are present, use that value.
+- Otherwise estimate using recurring deductions.
+- If impossible to determine, return null.
+
+3. savings
+- If PF, savings, investments, bank balance or account balance are available,
+  use the best available value.
+- Otherwise return null.
+
+4. loans
+- Extract outstanding loan amount if present.
+- If no loan is mentioned, return 0.
+
+5. monthly_emi
+- Extract EMI amount if available.
+- Otherwise return 0.
+
+6. insurance
+- Extract insurance deduction if available.
+- Otherwise return 0.
+
+Return ONLY this JSON format:
 
 {{
-    "monthly_income": number,
-    "monthly_expenses": number,
-    "savings": number,
-    "loans": number,
-    "monthly_emi": number,
-    "insurance": number
+    "monthly_income": 0,
+    "monthly_expenses": null,
+    "savings": null,
+    "loans": 0,
+    "monthly_emi": 0,
+    "insurance": 0
 }}
 
-Document:
+Financial Document:
 
 {text}
 """

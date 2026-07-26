@@ -1,29 +1,46 @@
 def loan_analysis(profile):
 
-    income = profile.get("monthly_income",0)
-    loans = profile.get("loans",0)
-    emi = profile.get("monthly_emi",0)
+    income = profile.get("monthly_income", 0)
+    loans = profile.get("loans", 0)
+    emi = profile.get("monthly_emi", 0)
 
-    if emi > income * 0.4:
-        recommendation = (
-            "Your EMI burden is high. "
-            "Avoid taking additional loans currently."
+    emi_ratio = 0
+
+    if income > 0:
+        emi_ratio = (emi / income) * 100
+
+    if emi == 0 and loans == 0:
+
+        message = (
+            "✅ You currently have no active loans.\n\n"
+            "Your financial profile looks healthy in terms of debt.\n\n"
+            "If you plan to take a loan, try to keep your EMI below 30% of your monthly income."
+        )
+
+    elif emi_ratio > 40:
+
+        message = (
+            "❌ Your EMI burden is quite high.\n\n"
+            f"Monthly EMI: ₹{emi:,}\n"
+            f"Monthly Income: ₹{income:,}\n\n"
+            "Avoid taking another loan until your current EMIs reduce."
         )
 
     elif loans > income * 12:
-        recommendation = (
-            "Your existing loans are high compared to income."
+
+        message = (
+            "⚠ Your existing loans are high compared to your annual income.\n\n"
+            "Focus on repaying current loans before applying for another one."
         )
 
     else:
-        recommendation = (
-            "Your current loan position looks manageable."
+
+        message = (
+            "✅ Your loan commitments appear manageable.\n\n"
+            f"Monthly EMI: ₹{emi:,}\n\n"
+            "If needed, you may consider another loan after comparing interest rates and ensuring the EMI remains affordable."
         )
 
     return {
-        "loan_status": recommendation,
-        "financial_score": profile.get(
-            "financial_score",
-            None
-        )
+        "message": message
     }
