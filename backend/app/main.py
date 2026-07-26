@@ -21,7 +21,7 @@ app.add_middleware(
 
     "https://fin-pilot-i3by0p0kf-surianila06-cmyks-projects.vercel.app",
     "https://fin-pilot-zeta.vercel.app",
-]
+],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

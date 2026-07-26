@@ -16,7 +16,10 @@ export async function uploadPDF(file: File) {
   return response.json();
 }
 
-export async function chatWithAI(question: string, profile: any) {
+export async function chatWithAI(
+  question: string,
+  profile: Record<string, unknown>
+) {
   const response = await fetch(`${BASE_URL}/api/chat`, {
     method: "POST",
     headers: {
