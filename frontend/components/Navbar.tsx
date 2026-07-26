@@ -3,143 +3,164 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  TrendingUp, 
-  LayoutDashboard, 
-  MessageSquareText, 
-  UploadCloud, 
-  Menu, 
-  X, 
+import {
+  TrendingUp,
+  LayoutDashboard,
+  MessageSquareText,
+  UploadCloud,
+  Menu,
+  X,
   CheckCircle2,
-  FileText
+  FileText,
+  Sparkles,
 } from "lucide-react";
+
+const NAV_LINKS = [
+  { name: "Home", href: "/", icon: TrendingUp },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "AI Copilot", href: "/chat", icon: MessageSquareText },
+  { name: "Upload Doc", href: "/upload", icon: UploadCloud },
+];
 
 export default function Navbar() {
   const pathname = usePathname();
   const [hasProfile, setHasProfile] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("financialProfile");
-      if (stored) {
-        setTimeout(() => setHasProfile(true), 0);
-      }
+    const stored = localStorage.getItem("financialProfile");
+    if (stored) {
+      const id = setTimeout(() => setHasProfile(true), 0);
+      return () => clearTimeout(id);
     }
   }, [pathname]);
 
-  const navLinks = [
-    { name: "Home", href: "/", icon: TrendingUp },
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "AI Copilot", href: "/chat", icon: MessageSquareText },
-    { name: "Upload Doc", href: "/upload", icon: UploadCloud },
-  ];
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80 bg-slate-950/80">
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "glass-panel border-b border-slate-800/80"
+          : "bg-transparent border-b border-transparent"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          
-          {/* Brand Logo */}
+
+          {/* Brand */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 p-0.5 shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 p-[1.5px] shadow-lg shadow-blue-600/30 group-hover:scale-105 transition-transform duration-300">
               <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                <TrendingUp className="w-4 h-4 text-blue-400" />
               </div>
             </div>
-            <div>
-              <span className="text-xl font-extrabold tracking-tight glow-text-gradient">
-                FinPilot <span className="text-blue-400 font-bold">AI</span>
+            <div className="hidden sm:block">
+              <span className="text-lg font-extrabold tracking-tight glow-text-gradient">
+                FinPilot
               </span>
-              <span className="block text-[10px] text-slate-400 tracking-wider font-semibold uppercase -mt-1">
+              <span className="text-lg font-extrabold text-slate-400"> AI</span>
+              <p className="text-[9px] text-slate-500 tracking-widest uppercase font-medium -mt-0.5">
                 Financial Copilot
-              </span>
+              </p>
             </div>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = pathname === link.href;
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 px-1.5 py-1.5 rounded-2xl border border-slate-800/80">
+            {NAV_LINKS.map(({ name, href, icon: Icon }) => {
+              const active = pathname === href;
               return (
                 <Link
-                  key={link.href}
-                  href={link.href}
+                  key={href}
+                  href={href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                    active
+                      ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-sm shadow-blue-500/10"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? "text-blue-400" : "text-slate-400"}`} />
-                  {link.name}
+                  <Icon className={`w-4 h-4 ${active ? "text-blue-400" : "text-slate-500"}`} />
+                  {name}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Profile Status Pill & Quick Action */}
+          {/* Right Actions */}
           <div className="hidden sm:flex items-center gap-3">
             {hasProfile ? (
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Profile Loaded</span>
+                Profile Loaded
               </div>
             ) : (
               <Link
                 href="/upload"
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 hover:border-slate-600 text-slate-300 text-xs font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-900/60 border border-slate-700/80 hover:border-slate-600 text-slate-300 text-xs font-medium transition-colors"
               >
                 <FileText className="w-3.5 h-3.5 text-blue-400" />
-                <span>Upload Statement</span>
+                Upload Statement
               </Link>
             )}
 
             <Link
               href="/chat"
-              className="relative group overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 p-[1px] shadow-md shadow-blue-600/20 hover:shadow-blue-600/40 transition-shadow duration-300"
+              className="relative group overflow-hidden flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:scale-[1.02] transition-all duration-200"
             >
-              <div className="px-4 py-2 rounded-[11px] bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:bg-opacity-0 transition-all duration-300 text-white text-sm font-semibold flex items-center gap-2">
-                <span>Ask AI</span>
-                <MessageSquareText className="w-4 h-4" />
-              </div>
+              <Sparkles className="w-4 h-4" />
+              Ask AI
             </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Toggle */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
-            aria-label="Toggle menu"
+            aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl px-4 pt-2 pb-6 space-y-2">
-          {navLinks.map((link) => {
-            const Icon = link.icon;
-            const isActive = pathname === link.href;
+      {mobileOpen && (
+        <div className="md:hidden border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-xl px-4 pt-3 pb-6 space-y-1 animate-fade-in">
+          {NAV_LINKS.map(({ name, href, icon: Icon }) => {
+            const active = pathname === href;
             return (
               <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
+                key={href}
+                href={href}
+                onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  isActive
+                  active
                     ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
                     : "text-slate-300 hover:bg-slate-900"
                 }`}
               >
-                <Icon className="w-5 h-5" />
-                {link.name}
+                <Icon className="w-4 h-4" />
+                {name}
               </Link>
             );
           })}
+
+          <div className="pt-3 border-t border-slate-800">
+            <Link
+              href="/chat"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold"
+            >
+              <Sparkles className="w-4 h-4" />
+              Ask FinPilot AI
+            </Link>
+          </div>
         </div>
       )}
     </header>

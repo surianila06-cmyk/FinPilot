@@ -1,65 +1,136 @@
+import os
+
 try:
     from groq import Groq
 except ImportError:
     Groq = None
+
 from app.config.settings import GROQ_API_KEY
 
+_SYSTEM_PROMPT = """You are FinPilot AI, an expert and empathetic Indian personal finance advisor.
 
-def fallback_advice(context):
-    """Rule-based fallback advisor when Groq API key is missing or encounters errors."""
-    profile = context.get("profile", {}) if isinstance(context, dict) else {}
-    question = str(context.get("question", "")) if isinstance(context, dict) else str(context)
+Your persona:
+- Warm, encouraging, and data-driven
+- Knowledgeable about Indian financial instruments (SGB, ELSS, PPF, NPS, FD, RD, Mutual Funds, SIPs)
+- Fluent with Indian tax rules (80C, 80D, HRA exemptions)
 
+Rules for every response:
+- Keep answers under 150 words.
+- Use bullet points for suggestions (•).
+- Always reference the user's actual numbers (income, savings, EMI, etc.).
+- Use emojis sparingly but effectively.
+- End every response with one short motivating sentence.
+- Do NOT use headings like "Financial Assessment" or "Recommended Steps".
+- NEVER give generic advice — always be specific to the user's profile.
+"""
+
+
+def fallback_advice(profile: dict, question: str) -> str:
+    """Rule-based fallback when Groq API is unavailable."""
     income = float(profile.get("monthly_income") or 50000)
     savings = float(profile.get("savings") or 10000)
     expenses = float(profile.get("monthly_expenses") or 15000)
-    
-    surplus = income - expenses
+    emi = float(profile.get("monthly_emi") or 0)
+    surplus = income - expenses - emi
+    q = question.lower()
 
-    if "gold" in question.lower():
+    if "gold" in q or "sgb" in q:
         if savings > 50000:
-            return f"✅ Yes, you can consider gold investments.\n\nYour monthly income is ₹{income:,.0f} with savings of ₹{savings:,.0f}.\n\nSuggestions:\n• Allocate at most 10% of portfolio to gold.\n• Consider Sovereign Gold Bonds or Digital Gold.\n\nKeep building healthy financial habits! 💡"
+            return (f"✅ With ₹{savings:,.0f} in savings, you can consider gold investments.\n\n"
+                    "• Allocate 5–10% of total savings to Gold.\n"
+                    "• Sovereign Gold Bonds (SGB) give 2.5% interest + capital gains tax exemption on maturity.\n"
+                    "• Digital Gold SIPs from ₹10/month are a great start.\n\n"
+                    "Diversification is the cornerstone of wealth! 💛")
         else:
-            return f"⚠ Maybe, but be careful.\n\nYour monthly income is ₹{income:,.0f} and savings are ₹{savings:,.0f}.\n\nSuggestions:\n• Build an emergency fund of 3-6 months expenses first.\n• Start small with Digital Gold SIPs.\n\nYou're making progress—keep saving! 🚀"
-    elif "bike" in question.lower() or "car" in question.lower():
-        if surplus > 15000:
-            return f"✅ Yes, you can afford a vehicle EMI.\n\nYour monthly surplus is around ₹{surplus:,.0f}.\n\nSuggestions:\n• Keep total vehicle EMI under 15% of income.\n• Make a larger down payment to lower interest.\n\nDrive safely and stay financially disciplined! 🚗"
+            return (f"⚠ Your savings of ₹{savings:,.0f} are still building up.\n\n"
+                    "• Build a 3-month emergency fund (₹{3*expenses:,.0f}) before investing in gold.\n"
+                    "• Start with Digital Gold SIPs at ₹500/month.\n\n"
+                    "Every rupee saved is a step forward! 🚀")
+
+    elif any(k in q for k in ["bike", "car", "vehicle", "scooter"]):
+        if surplus > 12000:
+            return (f"✅ Your monthly surplus of ₹{surplus:,.0f} supports a vehicle EMI.\n\n"
+                    "• Keep vehicle EMI under 15% of income (≤ ₹{income*0.15:,.0f}/month).\n"
+                    "• Aim for 30%+ down payment to reduce total interest paid.\n"
+                    "• Pre-owned vehicles cut cost by 20–40%.\n\n"
+                    "Drive smart, stay financially free! 🚗")
         else:
-            return f"⚠ Maybe, but be careful.\n\nYour monthly surplus is ₹{surplus:,.0f}.\n\nSuggestions:\n• Save a higher down payment first.\n• Check pre-owned options.\n\nPlan carefully for long-term stability! 🏍️"
-    elif "loan" in question.lower():
-        return f"⚠ Be cautious with new loans.\n\nYour current monthly income is ₹{income:,.0f}.\n\nSuggestions:\n• Total EMIs should not exceed 40% of net income.\n• Compare interest rates across multiple lenders.\n\nSmart borrowing leads to financial freedom! 📊"
+            return (f"⚠ Your current surplus of ₹{surplus:,.0f}/month is tight for a vehicle EMI.\n\n"
+                    "• Save a larger down payment over 6 months first.\n"
+                    "• Consider pre-owned options to reduce cost.\n\n"
+                    "With a little more preparation, you'll be road-ready! 🏍️")
+
+    elif any(k in q for k in ["loan", "emi", "borrow", "credit"]):
+        return (f"⚠ Before borrowing, review your current situation.\n\n"
+                f"• Monthly Income: ₹{income:,.0f} | Current EMI: ₹{emi:,.0f}\n"
+                "• Total EMIs must stay below 40% of net income.\n"
+                "• Compare PSU vs private bank interest rates carefully.\n\n"
+                "Smart borrowing today means financial freedom tomorrow! 📊")
+
+    elif any(k in q for k in ["sip", "mutual fund", "invest", "index"]):
+        sip_amount = max(500, int(surplus * 0.5))
+        return (f"💡 Investing is the best decision you can make right now!\n\n"
+                f"• Your surplus of ₹{surplus:,.0f} can support a ₹{sip_amount:,}/month SIP.\n"
+                "• Nifty 50 Index Funds have delivered ~12% CAGR over 10 years.\n"
+                "• Start on Zerodha Coin, Groww, or MFCentral — no commissions.\n\n"
+                "Let compounding do the heavy lifting for you! 📈")
+
     else:
-        return f"💡 FinPilot Financial Insight:\n\nWith a monthly income of ₹{income:,.0f} and estimated surplus of ₹{surplus:,.0f}:\n\nSuggestions:\n• Save at least 20% of net income every month.\n• Maintain 6 months of expenses in an liquid emergency fund.\n• Start a low-cost Index Fund SIP.\n\nYou're on the right track—keep building your financial future! 🌟"
+        return (f"💡 FinPilot Financial Snapshot:\n\n"
+                f"• Monthly Income: ₹{income:,.0f} | Surplus: ₹{surplus:,.0f}\n"
+                f"• Savings: ₹{savings:,.0f}\n"
+                "• Save at least 20% of income monthly.\n"
+                "• Maintain 6 months of expenses as emergency reserves.\n"
+                "• Start a low-cost Nifty Index Fund SIP.\n\n"
+                "You're building a great financial future! 🌟")
 
 
-def generate_advice(context):
-    api_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY")
-    
+def generate_advice(context: dict, chat_history: list | None = None) -> str:
+    """Generate financial advice using Groq LLM, falling back to rule-based logic."""
+    if not isinstance(context, dict):
+        context = {}
+
+    profile = context.get("profile", {}) or {}
+    question = str(context.get("question", "")).strip()
+
+    api_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY", "")
+
     if api_key and Groq is not None:
         try:
             client = Groq(api_key=api_key)
-            prompt = f"""
-You are FinPilot AI, a smart and friendly financial assistant.
 
-Your job is to answer the user's financial question in a simple, conversational way.
+            messages = [{"role": "system", "content": _SYSTEM_PROMPT}]
 
-Financial Profile:
-{context}
+            # Inject financial profile context
+            profile_context = (
+                f"\nUser's Financial Profile:\n"
+                f"- Monthly Income: ₹{float(profile.get('monthly_income') or 0):,.0f}\n"
+                f"- Monthly Expenses: ₹{float(profile.get('monthly_expenses') or 0):,.0f}\n"
+                f"- Liquid Savings: ₹{float(profile.get('savings') or 0):,.0f}\n"
+                f"- Active Loans: ₹{float(profile.get('loans') or 0):,.0f}\n"
+                f"- Monthly EMI: ₹{float(profile.get('monthly_emi') or 0):,.0f}\n"
+                f"- Insurance Premium: ₹{float(profile.get('insurance') or 0):,.0f}/month\n"
+            )
+            messages.append({"role": "system", "content": profile_context})
 
-Rules:
-- Keep the answer under 120 words.
-- Use short sentences.
-- Do NOT write headings like "Financial Assessment" or "Suggested Next Steps".
-- Use emojis where appropriate.
-- Mention key numbers.
-- End with one encouraging sentence.
-"""
+            # Add previous conversation turns
+            if chat_history:
+                for turn in chat_history[-6:]:  # Last 6 turns for context window efficiency
+                    messages.append({
+                        "role": turn.get("role", "user"),
+                        "content": turn.get("content", ""),
+                    })
+
+            messages.append({"role": "user", "content": question})
+
             response = client.chat.completions.create(
                 model="llama-3.1-8b-instant",
-                messages=[{"role": "user", "content": prompt}]
+                messages=messages,
+                max_tokens=300,
             )
-            return response.choices[0].message.content
-        except Exception as e:
-            print(f"Groq API advisor error: {e}. Using fallback advisor.")
+            return response.choices[0].message.content.strip()
 
-    return fallback_advice(context)
+        except Exception as exc:
+            print(f"[ai_advisor] Groq API error: {exc}. Using fallback advisor.")
+
+    return fallback_advice(profile, question)

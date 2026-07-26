@@ -1,15 +1,24 @@
 import { ReactNode } from "react";
 
-type Props = {
+type AccentColor = "blue" | "emerald" | "amber" | "rose" | "purple" | "cyan";
+
+interface FinancialCardProps {
   title: string;
   value: string;
   subtitle?: string;
   icon: ReactNode;
-  trend?: {
-    text: string;
-    positive?: boolean;
-  };
-  accentColor?: "blue" | "emerald" | "amber" | "rose" | "purple";
+  trend?: { text: string; positive?: boolean };
+  accentColor?: AccentColor;
+  highlight?: boolean;
+}
+
+const ACCENTS: Record<AccentColor, { border: string; bg: string; icon: string; glow: string }> = {
+  blue:    { border: "border-blue-500/20",    bg: "bg-blue-500/8",    icon: "text-blue-400",    glow: "group-hover:shadow-blue-500/10" },
+  emerald: { border: "border-emerald-500/20", bg: "bg-emerald-500/8", icon: "text-emerald-400", glow: "group-hover:shadow-emerald-500/10" },
+  amber:   { border: "border-amber-500/20",   bg: "bg-amber-500/8",   icon: "text-amber-400",   glow: "group-hover:shadow-amber-500/10" },
+  rose:    { border: "border-rose-500/20",    bg: "bg-rose-500/8",    icon: "text-rose-400",    glow: "group-hover:shadow-rose-500/10" },
+  purple:  { border: "border-purple-500/20",  bg: "bg-purple-500/8",  icon: "text-purple-400",  glow: "group-hover:shadow-purple-500/10" },
+  cyan:    { border: "border-cyan-500/20",    bg: "bg-cyan-500/8",    icon: "text-cyan-400",    glow: "group-hover:shadow-cyan-500/10" },
 };
 
 export default function FinancialCard({
@@ -19,48 +28,51 @@ export default function FinancialCard({
   icon,
   trend,
   accentColor = "blue",
-}: Props) {
-  const accentStyles = {
-    blue: "border-blue-500/20 bg-blue-500/5 text-blue-400",
-    emerald: "border-emerald-500/20 bg-emerald-500/5 text-emerald-400",
-    amber: "border-amber-500/20 bg-amber-500/5 text-amber-400",
-    rose: "border-rose-500/20 bg-rose-500/5 text-rose-400",
-    purple: "border-purple-500/20 bg-purple-500/5 text-purple-400",
-  };
+  highlight = false,
+}: FinancialCardProps) {
+  const accent = ACCENTS[accentColor];
 
   return (
-    <div className="glass-card rounded-2xl p-6 relative overflow-hidden group">
-      {/* Background Gradient Accent Glow */}
-      <div className="absolute -top-12 -right-12 w-24 h-24 rounded-full bg-blue-500/10 blur-xl group-hover:bg-blue-500/20 transition-all duration-500" />
-      
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <div
+      className={`glass-card rounded-2xl p-6 relative overflow-hidden group transition-all duration-300 ${
+        highlight ? "border-blue-500/30 shadow-lg shadow-blue-500/10" : ""
+      }`}
+    >
+      {/* Decorative Glow Blob */}
+      <div className={`absolute -top-10 -right-10 w-28 h-28 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${accent.bg}`} />
+
+      <div className="relative flex items-start justify-between gap-4">
+        <div className="space-y-1 min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
             {title}
           </p>
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-100 tracking-tight truncate">
             {value}
           </h3>
           {subtitle && (
-            <p className="text-xs text-slate-400 pt-1 font-medium">{subtitle}</p>
+            <p className="text-xs text-slate-500 pt-0.5 font-medium">{subtitle}</p>
           )}
         </div>
 
-        <div className={`p-3.5 rounded-xl border ${accentStyles[accentColor]} transition-transform duration-300 group-hover:scale-110 shadow-inner`}>
+        <div
+          className={`p-3 rounded-xl border ${accent.border} ${accent.bg} ${accent.icon} flex-shrink-0 transition-transform duration-300 group-hover:scale-110`}
+        >
           {icon}
         </div>
       </div>
 
       {trend && (
-        <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span className={`font-semibold px-2 py-0.5 rounded-md ${
-            trend.positive 
-              ? "bg-emerald-950/80 text-emerald-400 border border-emerald-500/30" 
-              : "bg-amber-950/80 text-amber-400 border border-amber-500/30"
-          }`}>
+        <div className="mt-5 pt-4 border-t border-slate-800/60 flex items-center gap-2 text-xs">
+          <span
+            className={`font-semibold px-2 py-0.5 rounded-md ${
+              trend.positive
+                ? "bg-emerald-950/80 text-emerald-400 border border-emerald-500/25"
+                : "bg-amber-950/80 text-amber-400 border border-amber-500/25"
+            }`}
+          >
             {trend.text}
           </span>
-          <span className="text-slate-500">vs last assessment</span>
+          <span className="text-slate-600">vs last assessment</span>
         </div>
       )}
     </div>

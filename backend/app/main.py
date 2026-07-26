@@ -8,11 +8,11 @@ from app.routes.chat import router as chat_router
 
 app = FastAPI(
     title="FinPilot AI Backend",
-    version="1.0.0",
-    description="Agentic AI Financial Copilot Backend"
+    version="2.0.0",
+    description="Agentic AI Financial Copilot — PDF parsing, financial health scoring, goal planning & personalized advice.",
 )
 
-# CORS Middleware
+# ── CORS ─────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -27,15 +27,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register all routes
+# ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(profile_router)
 app.include_router(gemini_router)
 app.include_router(upload_router)
 app.include_router(chat_router)
 
+
 @app.get("/")
 async def root():
     return {
         "status": "success",
-        "message": "FinPilot AI Backend is running!"
+        "message": "FinPilot AI Backend v2.0 is running!",
+        "version": "2.0.0",
+    }
+
+
+@app.get("/api/health")
+async def health():
+    return {
+        "status": "healthy",
+        "service": "FinPilot AI Backend",
+        "version": "2.0.0",
     }

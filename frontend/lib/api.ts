@@ -1,30 +1,54 @@
+import type { UploadResponse, ChatResponse, ChatHistoryItem } from "@/types/financial";
+
 function getBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
-  }
-  if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+  ) {
     return "http://127.0.0.1:8000";
   }
   return "https://finpilot-backend-jodg.onrender.com";
 }
 
 const BASE_URL = getBaseUrl();
+const DEFAULT_TIMEOUT_MS = 45000;
 
-// Helper function to ping backend root to trigger cold start wake-up
+class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  timeoutMs = DEFAULT_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+// ── Ping ─────────────────────────────────────────────────────────────────────
 export async function pingBackend(): Promise<boolean> {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-    const res = await fetch(`${BASE_URL}/`, { signal: controller.signal });
-    clearTimeout(timeoutId);
+    const res = await fetchWithTimeout(`${BASE_URL}/`, {}, 8000);
     return res.ok;
   } catch {
     return false;
   }
 }
 
-// Client-side fallback generator for offline / cold-start backend resiliency
-function generateClientFallbackProfile(filename: string) {
+// ── Client-side fallback profile ─────────────────────────────────────────────
+function clientFallbackProfile(filename: string): UploadResponse {
   return {
     filename,
     pages: 1,
@@ -34,131 +58,121 @@ function generateClientFallbackProfile(filename: string) {
       savings: 350000,
       loans: 120000,
       monthly_emi: 6500,
-      insurance: 3000
+      insurance: 3000,
     },
-    financial_score: 82,
-    is_fallback: true
+    financial_score: 78,
+    score_label: "Good",
+    is_fallback: true,
   };
 }
 
+// ── Upload PDF ────────────────────────────────────────────────────────────────
 export async function uploadPDF(
-  file: File, 
-  onStatusUpdate?: (status: string) => void
-) {
-  const formData = new FormData();
-  formData.append("file", file);
+  file: File,
+  onStatus?: (msg: string) => void
+): Promise<UploadResponse> {
+  const MAX_RETRIES = 3;
 
-  const maxRetries = 3;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      if (attempt > 1 && onStatusUpdate) {
-        onStatusUpdate(`Waking up server (Attempt ${attempt}/${maxRetries})... Please wait.`);
+      if (attempt > 1 && onStatus) {
+        onStatus(`Waking up server… Attempt ${attempt}/${MAX_RETRIES}`);
       }
 
-      const controller = new AbortController();
-      // Allow up to 45 seconds for Render free tier to wake up
-      const timeoutId = setTimeout(() => controller.abort(), 45000);
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const response = await fetch(`${BASE_URL}/api/upload`, {
+      const response = await fetchWithTimeout(`${BASE_URL}/api/upload`, {
         method: "POST",
         body: formData,
-        signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
-
       if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        const errMsg = errJson.detail || errJson.message || `Upload failed with status ${response.status}`;
-        throw new Error(errMsg);
+        const errBody = await response.json().catch(() => ({}));
+        const msg = errBody.detail || errBody.message || `Upload failed (${response.status})`;
+        throw new ApiError(msg, response.status);
       }
 
-      return await response.json();
-    } catch (error: unknown) {
-      console.warn(`Upload attempt ${attempt} failed:`, error);
-      
-      if (attempt === maxRetries) {
-        if (onStatusUpdate) {
-          onStatusUpdate("Server cold-start delay detected. Using intelligent client parser...");
-        }
-        // Return client fallback profile so user is NEVER blocked
-        return generateClientFallbackProfile(file.name);
+      return (await response.json()) as UploadResponse;
+    } catch (err) {
+      console.warn(`[api] Upload attempt ${attempt} failed:`, err);
+      if (attempt === MAX_RETRIES) {
+        if (onStatus) onStatus("Server cold-start detected — using smart client parser…");
+        return clientFallbackProfile(file.name);
       }
-
-      // Wait 4 seconds before retrying to allow Render container to finish spinning up
-      await new Promise((resolve) => setTimeout(resolve, 4000));
+      await new Promise((r) => setTimeout(r, 4000));
     }
   }
 
-  return generateClientFallbackProfile(file.name);
+  return clientFallbackProfile(file.name);
 }
 
-export async function chatWithAI(
-  question: string,
-  profile: Record<string, unknown>
-) {
-  const maxRetries = 2;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-      const response = await fetch(`${BASE_URL}/api/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          question,
-          profile,
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        const errMsg = errJson.detail || errJson.message || `Chat failed with status ${response.status}`;
-        throw new Error(errMsg);
-      }
-
-      return await response.json();
-    } catch (error: unknown) {
-      console.warn(`Chat attempt ${attempt} failed:`, error);
-
-      if (attempt === maxRetries) {
-        // Local intelligent advisor fallback if server fails to wake up
-        return {
-          message: generateLocalAdvisorFallback(question, profile)
-        };
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-    }
-  }
-
-  return {
-    message: generateLocalAdvisorFallback(question, profile)
-  };
-}
-
-function generateLocalAdvisorFallback(question: string, profile: Record<string, unknown>): string {
+// ── Chat ──────────────────────────────────────────────────────────────────────
+function clientFallbackChat(question: string, profile: Record<string, unknown>): ChatResponse {
   const q = question.toLowerCase();
   const income = Number(profile.monthly_income) || 75000;
   const savings = Number(profile.savings) || 350000;
   const expenses = Number(profile.monthly_expenses) || 25000;
-  const surplus = income - expenses;
+  const emi = Number(profile.monthly_emi) || 0;
+  const surplus = income - expenses - emi;
 
-  if (q.includes("gold")) {
-    return `✅ Yes, gold is a solid hedge against inflation.\n\nMonthly Income: ₹${income.toLocaleString()}\nSavings: ₹${savings.toLocaleString()}\n\nSuggestions:\n• Limit gold allocation to 5-10% of portfolio.\n• Consider Sovereign Gold Bonds or Digital Gold SIPs.\n\nKeep building your wealth discipline! 💡`;
+  if (q.includes("gold") || q.includes("sgb")) {
+    return {
+      message: `✅ Gold is an excellent inflation hedge.\n\nSavings: ₹${savings.toLocaleString()}\n\n• Allocate 5–10% of savings to gold.\n• Sovereign Gold Bonds offer 2.5% interest + tax-free gains on maturity.\n• Start Digital Gold SIPs from ₹100/month.\n\nDiversify wisely and grow steadily! 💛`,
+    };
+  } else if (q.includes("sip") || q.includes("invest") || q.includes("mutual fund")) {
+    const sip = Math.max(500, Math.round(surplus * 0.3));
+    return {
+      message: `💡 Investing is the smartest move right now!\n\nMonthly Surplus: ₹${surplus.toLocaleString()}\nRecommended SIP: ₹${sip.toLocaleString()}/month\n\n• Nifty 50 Index Funds: ~12% CAGR historically.\n• Use Zerodha Coin or Groww for direct plans (zero commission).\n\nStart today — time beats timing! 📈`,
+    };
   } else if (q.includes("bike") || q.includes("car") || q.includes("vehicle")) {
-    return `✅ Buying a vehicle is achievable with your ₹${surplus.toLocaleString()}/mo surplus.\n\nSuggestions:\n• Keep total vehicle EMI under 15% of monthly income.\n• Aim for a 30%+ down payment to lower interest burden.\n\nPlan wisely for long-term stability! 🚗`;
+    return {
+      message: `✅ A vehicle purchase is achievable with your surplus of ₹${surplus.toLocaleString()}/month.\n\n• Keep vehicle EMI under 15% of income (≤ ₹${(income * 0.15).toLocaleString()}/month).\n• Aim for 30%+ down payment to reduce interest.\n\nPlan well and drive confidently! 🚗`,
+    };
   } else if (q.includes("loan") || q.includes("emi")) {
-    return `⚠ Be strategic with new debt.\n\nMonthly Income: ₹${income.toLocaleString()}\n\nSuggestions:\n• Keep total EMIs strictly below 35% of monthly net pay.\n• Compare interest rates across PSU and private banks.\n\nSmart borrowing protects your financial freedom! 📊`;
+    return {
+      message: `⚠ Be strategic about new debt.\n\nMonthly Income: ₹${income.toLocaleString()}\n\n• Keep total EMIs below 35% of net income (≤ ₹${(income * 0.35).toLocaleString()}/month).\n• Compare PSU vs private bank rates before committing.\n\nSmart borrowing protects your financial freedom! 📊`,
+    };
   } else {
-    return `💡 FinPilot Financial Overview:\n\nNet Monthly Surplus: ₹${surplus.toLocaleString()}\nSavings Reserve: ₹${savings.toLocaleString()}\n\nSuggestions:\n• Maintain 6 months of expenses in liquid emergency funds.\n• Invest monthly surplus into low-cost SIP index funds.\n\nYou're on the right track! 🌟`;
+    return {
+      message: `💡 FinPilot Financial Snapshot:\n\nIncome: ₹${income.toLocaleString()} | Surplus: ₹${surplus.toLocaleString()}\nSavings: ₹${savings.toLocaleString()}\n\n• Save at least 20% of income monthly.\n• Maintain 6 months of expenses as emergency reserves.\n• Start a Nifty 50 Index Fund SIP.\n\nYou're on the right track — keep building! 🌟`,
+    };
   }
+}
+
+export async function chatWithAI(
+  question: string,
+  profile: Record<string, unknown>,
+  chatHistory: ChatHistoryItem[] = []
+): Promise<ChatResponse> {
+  const MAX_RETRIES = 2;
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const response = await fetchWithTimeout(
+        `${BASE_URL}/api/chat`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question, profile, chat_history: chatHistory }),
+        },
+        30000
+      );
+
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}));
+        throw new ApiError(errBody.detail || `Chat failed (${response.status})`, response.status);
+      }
+
+      return (await response.json()) as ChatResponse;
+    } catch (err) {
+      console.warn(`[api] Chat attempt ${attempt} failed:`, err);
+      if (attempt === MAX_RETRIES) {
+        return clientFallbackChat(question, profile);
+      }
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+  }
+
+  return clientFallbackChat(question, profile);
 }

@@ -1,78 +1,70 @@
-import { Bot, User, Sparkles, CheckCircle2, AlertTriangle, Info } from "lucide-react";
+import { Bot, User, Sparkles, CheckCircle2, AlertTriangle, Info, XCircle } from "lucide-react";
+import type { MessageItem } from "@/types/financial";
 
-export interface MessageProps {
-  sender: "user" | "ai";
-  text: string;
-  timestamp?: string;
+function getBadge(text: string) {
+  const t = text.trim();
+  if (t.startsWith("✅")) return { type: "success", label: "Approved / Safe", icon: CheckCircle2, colors: "bg-emerald-950/80 text-emerald-400 border-emerald-500/30" };
+  if (t.startsWith("❌")) return { type: "danger", label: "Not Recommended", icon: XCircle, colors: "bg-red-950/80 text-red-400 border-red-500/30" };
+  if (t.startsWith("⚠")) return { type: "warning", label: "Caution Advised", icon: AlertTriangle, colors: "bg-amber-950/80 text-amber-400 border-amber-500/30" };
+  if (t.startsWith("💡")) return { type: "info", label: "AI Insight", icon: Info, colors: "bg-blue-950/80 text-blue-400 border-blue-500/30" };
+  // Fallback checks for mid-text icons
+  if (text.includes("✅")) return { type: "success", label: "Approved / Safe", icon: CheckCircle2, colors: "bg-emerald-950/80 text-emerald-400 border-emerald-500/30" };
+  if (text.includes("❌")) return { type: "danger", label: "Not Recommended", icon: XCircle, colors: "bg-red-950/80 text-red-400 border-red-500/30" };
+  if (text.includes("⚠")) return { type: "warning", label: "Caution Advised", icon: AlertTriangle, colors: "bg-amber-950/80 text-amber-400 border-amber-500/30" };
+  if (text.includes("💡")) return { type: "info", label: "AI Insight", icon: Info, colors: "bg-blue-950/80 text-blue-400 border-blue-500/30" };
+  return null;
 }
 
-export default function ChatMessage({ sender, text, timestamp }: MessageProps) {
+export default function ChatMessage({ sender, text, timestamp }: MessageItem) {
   const isUser = sender === "user";
-
-  // Formatter to render status badges if text contains icons like ✅ or ⚠
-  const getBadgeType = (content: string) => {
-    const trimmed = content.trim();
-    if (trimmed.startsWith("✅")) return { type: "success", label: "Approved / Safe", icon: CheckCircle2 };
-    if (trimmed.startsWith("⚠") || trimmed.startsWith("❌")) return { type: "warning", label: "High Caution / Debt Risk", icon: AlertTriangle };
-    if (trimmed.startsWith("💡")) return { type: "info", label: "AI Financial Advice", icon: Info };
-
-    if (content.includes("✅")) return { type: "success", label: "Approved / Safe", icon: CheckCircle2 };
-    if (content.includes("⚠") || content.includes("❌")) return { type: "warning", label: "High Caution / Debt Risk", icon: AlertTriangle };
-    if (content.includes("💡")) return { type: "info", label: "AI Financial Advice", icon: Info };
-    return null;
-  };
-
-  const badge = !isUser ? getBadgeType(text) : null;
+  const badge = !isUser ? getBadge(text) : null;
 
   return (
-    <div className={`flex items-start gap-3.5 my-4 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
-      
-      {/* Avatar Icon */}
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${
-        isUser 
-          ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white" 
-          : "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-blue-500/20"
-      }`}>
-        {isUser ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+    <div className={`flex items-start gap-3 my-3 animate-fade-in-up ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+      {/* Avatar */}
+      <div
+        className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${
+          isUser
+            ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white"
+            : "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-blue-500/20"
+        }`}
+      >
+        {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
       </div>
 
-      {/* Message Content Bubble */}
-      <div className={`max-w-2xl rounded-2xl p-4 sm:p-5 shadow-lg border transition-all ${
-        isUser
-          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500/30 rounded-tr-none"
-          : "glass-card text-slate-100 border-slate-800 rounded-tl-none"
-      }`}>
-
+      {/* Bubble */}
+      <div
+        className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-lg border transition-all ${
+          isUser
+            ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white border-blue-500/30 rounded-tr-sm"
+            : "glass-card text-slate-100 border-slate-800/80 rounded-tl-sm"
+        }`}
+      >
+        {/* Badge header for AI messages */}
         {!isUser && badge && (
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-800/80">
-            <span className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-              badge.type === "success"
-                ? "bg-emerald-950/80 text-emerald-400 border border-emerald-500/30"
-                : badge.type === "warning"
-                ? "bg-amber-950/80 text-amber-400 border border-amber-500/30"
-                : "bg-blue-950/80 text-blue-400 border border-blue-500/30"
-            }`}>
-              <badge.icon className="w-3.5 h-3.5" />
-              <span>{badge.label}</span>
+          <div className="flex items-center gap-2 mb-2.5 pb-2 border-b border-slate-800/60">
+            <span className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badge.colors}`}>
+              <badge.icon className="w-3 h-3" />
+              {badge.label}
             </span>
-            <span className="text-[10px] text-slate-400 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-purple-400" /> FinPilot Agent
+            <span className="text-[10px] text-slate-500 flex items-center gap-1 ml-auto">
+              <Sparkles className="w-3 h-3 text-purple-400" />
+              FinPilot AI
             </span>
           </div>
         )}
 
-        {/* Text Body */}
-        <div className="text-sm leading-relaxed whitespace-pre-line space-y-2 font-normal">
+        {/* Message text */}
+        <div className="text-sm leading-relaxed whitespace-pre-line font-normal">
           {text}
         </div>
 
         {/* Timestamp */}
         {timestamp && (
-          <div className={`mt-2 text-[10px] ${isUser ? "text-blue-200 text-right" : "text-slate-500 text-left"}`}>
+          <div className={`mt-1.5 text-[10px] ${isUser ? "text-blue-200 text-right" : "text-slate-600"}`}>
             {timestamp}
           </div>
         )}
-
       </div>
     </div>
   );

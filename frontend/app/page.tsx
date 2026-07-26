@@ -4,300 +4,271 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { 
-  Sparkles, 
-  ArrowRight, 
-  FileText, 
-  ShieldCheck, 
-  PieChart as PieChartIcon, 
-  Calculator, 
-  Bot
+import ScoreGauge from "@/components/ScoreGauge";
+import {
+  ArrowRight, FileText, ShieldCheck, PieChart as PieIcon,
+  Bot, Sparkles, Coins, Home as HomeIcon,
+  BarChart2, Zap, CheckCircle2,
 } from "lucide-react";
 
+const FEATURES = [
+  {
+    icon: FileText,
+    color: "blue",
+    title: "AI Document Parser",
+    desc: "Upload salary slips or bank statements. FinPilot extracts income, taxes, EMIs, and savings automatically using LLM intelligence.",
+  },
+  {
+    icon: PieIcon,
+    color: "emerald",
+    title: "Financial Health Index",
+    desc: "Get a 0–100 health score based on 5 weighted factors: expense ratio, EMI burden, savings reserve, debt load, and insurance coverage.",
+  },
+  {
+    icon: Bot,
+    color: "purple",
+    title: "Conversational AI Advisor",
+    desc: "Ask anything — vehicle purchases, gold investments, SIP projections, loan eligibility — and receive data-backed, personalised answers.",
+  },
+  {
+    icon: BarChart2,
+    color: "amber",
+    title: "SIP Wealth Projections",
+    desc: "See your money grow. FinPilot calculates 5, 10, and 20-year SIP projections using historical Nifty 50 CAGR benchmarks.",
+  },
+  {
+    icon: Coins,
+    color: "yellow",
+    title: "Gold Strategy Advisor",
+    desc: "Get tailored advice on Sovereign Gold Bonds, Gold ETFs, and Digital Gold SIPs aligned with your current savings level.",
+  },
+  {
+    icon: HomeIcon,
+    color: "cyan",
+    title: "Goal Planning Engine",
+    desc: "Planning a bike, car, house, or wedding? FinPilot calculates exactly how long it takes and how much to save monthly.",
+  },
+];
+
+const COLOR_MAP: Record<string, string> = {
+  blue:    "bg-blue-500/10 border-blue-500/20 text-blue-400",
+  emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
+  purple:  "bg-purple-500/10 border-purple-500/20 text-purple-400",
+  amber:   "bg-amber-500/10 border-amber-500/20 text-amber-400",
+  yellow:  "bg-yellow-500/10 border-yellow-500/20 text-yellow-400",
+  cyan:    "bg-cyan-500/10 border-cyan-500/20 text-cyan-400",
+};
+
+const TRUST_ITEMS = [
+  { icon: ShieldCheck, label: "100% Private — no data stored", color: "text-emerald-400" },
+  { icon: Zap, label: "Instant AI Analysis", color: "text-blue-400" },
+  { icon: CheckCircle2, label: "No login required", color: "text-purple-400" },
+];
+
 export default function Home() {
-  // Interactive Live Score Simulator State
   const [simIncome, setSimIncome] = useState(75000);
   const [simExpenses, setSimExpenses] = useState(25000);
   const [simSavings, setSimSavings] = useState(300000);
 
   const surplus = simIncome - simExpenses;
   const savingsRatio = simIncome > 0 ? (surplus / simIncome) * 100 : 0;
-  
-  // Calculate simulated health score
+
   const simScore = Math.min(
     100,
-    Math.round(
-      (savingsRatio > 40 ? 50 : savingsRatio * 1.25) +
-      (simSavings > simExpenses * 6 ? 40 : (simSavings / (simExpenses * 6)) * 40) +
-      10
+    Math.max(
+      0,
+      Math.round(
+        (savingsRatio > 40 ? 50 : savingsRatio * 1.25) +
+          (simSavings > simExpenses * 6 ? 40 : (simSavings / (simExpenses * 6 || 1)) * 40) +
+          10
+      )
     )
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#080d1a]">
       <Navbar />
 
-      <main className="flex-1 overflow-hidden">
-        {/* Background Decorative Glow Blobs */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-blue-600/20 via-indigo-600/20 to-purple-600/10 rounded-full blur-3xl -z-10 pointer-events-none" />
-          
-          {/* HERO SECTION */}
-          <section className="pt-20 pb-16 text-center space-y-8">
-            
-            {/* Version Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-slate-800 backdrop-blur-md shadow-inner text-xs font-semibold">
+      <main className="flex-1 overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* ── HERO ─────────────────────────────────────────────────────── */}
+          <section className="relative pt-24 pb-20 text-center space-y-8">
+            {/* Decorative blobs */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-blue-600/15 via-indigo-600/12 to-purple-600/8 rounded-full blur-3xl -z-10 pointer-events-none animate-blob" />
+
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-slate-800 backdrop-blur-md text-xs font-semibold shadow-inner">
               <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
               <span className="text-slate-300">Agentic AI Financial Copilot</span>
               <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] uppercase font-bold tracking-wider">
-                v2.0 Active
+                v2.0 Live
               </span>
             </div>
 
-            {/* Main Headline */}
-            <div className="max-w-4xl mx-auto space-y-4">
-              <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-100 leading-tight">
-                Your Intelligent <br />
-                <span className="glow-text-gradient">Financial Health Copilot</span>
+            <div className="max-w-4xl mx-auto space-y-5">
+              <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-slate-100 leading-tight">
+                Your Intelligent
+                <br />
+                <span className="glow-text-gradient">Financial Copilot</span>
               </h1>
-              <p className="text-base sm:text-xl text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed">
-                Upload your salary slips or bank statements. Get instant AI financial extraction, health index diagnosis, and personalized loan & investment guidance.
+              <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-normal">
+                Upload your salary slip or bank statement. Get instant AI-powered health scores,
+                SIP projections, loan checks, and personalised investment advice.
               </p>
             </div>
 
-            {/* Hero CTAs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
               <Link
                 href="/upload"
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-base shadow-xl shadow-blue-600/25 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2"
+                id="hero-upload-cta"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold text-base shadow-xl shadow-blue-600/20 hover:shadow-blue-600/35 hover:scale-[1.03] transition-all duration-300 flex items-center justify-center gap-2"
               >
-                <span>Upload Statement</span>
+                Upload Statement
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 href="/chat"
-                className="w-full sm:w-auto px-8 py-4 rounded-2xl glass-card hover:bg-slate-800/80 text-slate-200 font-semibold text-base border border-slate-800 flex items-center justify-center gap-2 transition-all"
+                id="hero-chat-cta"
+                className="w-full sm:w-auto px-8 py-4 rounded-2xl glass-card text-slate-200 font-semibold text-base border border-slate-800/80 hover:border-slate-700 flex items-center justify-center gap-2 transition-all"
               >
                 <Bot className="w-5 h-5 text-blue-400" />
-                <span>Try AI Copilot Chat</span>
+                Try AI Copilot Chat
               </Link>
             </div>
 
-            {/* Trust Badges */}
-            <div className="pt-10 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs text-slate-400 border-t border-slate-900 max-w-3xl mx-auto">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-400" />
-                <span>Automated PDF Parsing</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <PieChartIcon className="w-4 h-4 text-emerald-400" />
-                <span>Interactive Wealth Charts</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-purple-400" />
-                <span>100% Private Local Storage</span>
-              </div>
+            {/* Trust indicators */}
+            <div className="pt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs text-slate-500">
+              {TRUST_ITEMS.map(({ icon: Icon, label, color }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <Icon className={`w-4 h-4 ${color}`} />
+                  <span>{label}</span>
+                </div>
+              ))}
             </div>
-
           </section>
 
-          {/* INTERACTIVE FINANCIAL HEALTH SIMULATOR SHOWCASE */}
+          {/* ── LIVE SIMULATOR ───────────────────────────────────────────── */}
           <section className="py-12">
-            <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-slate-800 relative overflow-hidden shadow-2xl">
-              
-              <div className="text-center max-w-xl mx-auto mb-8">
-                <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">
-                  Live Calculator Preview
-                </span>
+            <div className="glass-panel rounded-3xl p-6 sm:p-10 border border-slate-800/80 shadow-2xl relative overflow-hidden">
+              <div className="absolute -top-20 -right-20 w-56 h-56 bg-blue-600/8 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="text-center mb-10">
+                <span className="text-xs font-bold text-blue-400 uppercase tracking-widest">Live Calculator</span>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-100 mt-1">
                   Test Your Financial Health Score
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-400 mt-2">
-                  Adjust the parameters below to see how FinPilot calculates your financial stability in real-time.
+                <p className="text-sm text-slate-400 mt-2">
+                  Adjust the sliders to see how FinPilot scores your financial profile in real-time.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                
-                {/* Sliders Input Column */}
-                <div className="lg:col-span-7 space-y-6">
-                  
-                  {/* Monthly Income Slider */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-slate-300">Monthly Income</span>
-                      <span className="text-blue-400">₹{simIncome.toLocaleString()}</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                {/* Sliders */}
+                <div className="lg:col-span-7 space-y-7">
+                  {[
+                    { label: "Monthly Income", value: simIncome, setter: setSimIncome, min: 20000, max: 300000, step: 5000, color: "accent-blue-500", valColor: "text-blue-400" },
+                    { label: "Monthly Expenses", value: simExpenses, setter: setSimExpenses, min: 5000, max: 200000, step: 2500, color: "accent-amber-500", valColor: "text-amber-400" },
+                    { label: "Liquid Savings", value: simSavings, setter: setSimSavings, min: 10000, max: 1000000, step: 10000, color: "accent-emerald-500", valColor: "text-emerald-400" },
+                  ].map(({ label, value, setter, min, max, step, color, valColor }) => (
+                    <div key={label} className="space-y-2">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-slate-300">{label}</span>
+                        <span className={valColor}>₹{value.toLocaleString()}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        step={step}
+                        value={value}
+                        onChange={(e) => setter(Number(e.target.value))}
+                        className={`w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer ${color}`}
+                      />
                     </div>
-                    <input
-                      type="range"
-                      min="20000"
-                      max="300000"
-                      step="5000"
-                      value={simIncome}
-                      onChange={(e) => setSimIncome(Number(e.target.value))}
-                      className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                    />
-                  </div>
+                  ))}
 
-                  {/* Monthly Expenses Slider */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-slate-300">Monthly Expenses</span>
-                      <span className="text-amber-400">₹{simExpenses.toLocaleString()}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="5000"
-                      max="150000"
-                      step="2500"
-                      value={simExpenses}
-                      onChange={(e) => setSimExpenses(Number(e.target.value))}
-                      className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                    />
-                  </div>
-
-                  {/* Total Savings Slider */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-slate-300">Liquid Savings / Reserve</span>
-                      <span className="text-emerald-400">₹{simSavings.toLocaleString()}</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="10000"
-                      max="1000000"
-                      step="10000"
-                      value={simSavings}
-                      onChange={(e) => setSimSavings(Number(e.target.value))}
-                      className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                    />
-                  </div>
-
-                  {/* Quick stats summary */}
-                  <div className="grid grid-cols-2 gap-4 pt-2">
-                    <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                  <div className="grid grid-cols-2 gap-4 pt-1">
+                    <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
                       <span className="text-[10px] text-slate-500 uppercase font-semibold block">Monthly Surplus</span>
                       <span className="text-sm font-bold text-emerald-400">₹{surplus.toLocaleString()}</span>
                     </div>
-                    <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
                       <span className="text-[10px] text-slate-500 uppercase font-semibold block">Savings Rate</span>
                       <span className="text-sm font-bold text-blue-400">{savingsRatio.toFixed(1)}%</span>
                     </div>
                   </div>
-
                 </div>
 
-                {/* Score Output Gauge Column */}
-                <div className="lg:col-span-5 flex flex-col items-center justify-center p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-slate-800/80 shadow-inner">
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Calculated Health Index
+                {/* Score gauge */}
+                <div className="lg:col-span-5 flex flex-col items-center justify-center gap-6 p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                    Live Health Index
                   </span>
-                  
-                  <div className="relative w-40 h-40 flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-full border-8 border-slate-800" />
-                    <div 
-                      className="absolute inset-0 rounded-full border-8 border-emerald-500 transition-all duration-500"
-                      style={{
-                        clipPath: `inset(0 0 0 0)`,
-                        opacity: simScore / 100
-                      }}
-                    />
-                    <div className="text-center">
-                      <span className="text-5xl font-black text-slate-100 glow-text-emerald">
-                        {simScore}
-                      </span>
-                      <span className="block text-xs font-medium text-slate-400 mt-1">/ 100</span>
-                    </div>
-                  </div>
-
-                  <p className="mt-4 text-xs font-semibold text-center text-slate-300">
-                    {simScore >= 80 ? "🟢 Excellent Financial Stability" : simScore >= 60 ? "🟡 Healthy Savings Buffer" : "🟠 High Expense Burden"}
-                  </p>
-                  
+                  <ScoreGauge score={simScore} size={180} />
                   <Link
                     href="/upload"
-                    className="mt-6 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md"
+                    className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-md shadow-blue-500/20"
                   >
-                    Analyze Real PDF File
+                    Analyse My Real Document →
                   </Link>
                 </div>
-
               </div>
-
             </div>
           </section>
 
-          {/* FEATURE HIGHLIGHT GRID */}
+          {/* ── FEATURES GRID ─────────────────────────────────────────────── */}
           <section className="py-16 space-y-12">
             <div className="text-center max-w-2xl mx-auto">
-              <h2 className="text-3xl font-extrabold text-slate-100">
+              <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">What FinPilot Does</span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-100 mt-2">
                 Designed for Smarter Financial Decisions
               </h2>
-              <p className="text-slate-400 text-sm mt-2">
-                Everything you need to analyze your financial health, plan major purchases, and optimize savings.
+              <p className="text-slate-400 text-sm mt-3">
+                Everything you need to understand your finances, plan major purchases, and build long-term wealth.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              
-              {/* Feature 1 */}
-              <div className="glass-card rounded-2xl p-8 space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                  <FileText className="w-6 h-6" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {FEATURES.map(({ icon: Icon, color, title, desc }) => (
+                <div key={title} className="glass-card rounded-2xl p-7 space-y-4">
+                  <div className={`w-12 h-12 rounded-xl border flex items-center justify-center ${COLOR_MAP[color]}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-100">{title}</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
                 </div>
-                <h3 className="text-xl font-bold text-slate-100">AI Document Parser</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  Upload salary slips or bank statements. FinPilot&apos;s document engine extracts income, tax deductions, expenses, and loan EMIs automatically.
-                </p>
-              </div>
-
-              {/* Feature 2 */}
-              <div className="glass-card rounded-2xl p-8 space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                  <Calculator className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-100">Health Index Score</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  Instantly compute your financial health index out of 100 based on savings ratio, emergency buffer months, and debt-to-income limits.
-                </p>
-              </div>
-
-              {/* Feature 3 */}
-              <div className="glass-card rounded-2xl p-8 space-y-4">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-                  <Bot className="w-6 h-6" />
-                </div>
-                <h3 className="text-xl font-bold text-slate-100">Conversational AI Advisor</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">
-                  Ask questions like &quot;Can I buy a vehicle?&quot;, &quot;Should I buy gold?&quot;, or &quot;Can I take a home loan?&quot; and get instant data-backed answers.
-                </p>
-              </div>
-
+              ))}
             </div>
           </section>
 
-          {/* QUICK PROMPT SHOWCASE BANNER */}
-          <section className="pb-20">
-            <div className="glass-card rounded-3xl p-8 sm:p-10 border border-blue-500/20 bg-gradient-to-r from-slate-900 via-slate-900 to-blue-950/40 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="space-y-2 text-center sm:text-left">
-                <h3 className="text-2xl font-bold text-slate-100">Ready to test your financial profile?</h3>
-                <p className="text-slate-400 text-sm">
-                  Upload your document or jump straight into the AI Copilot chat.
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <Link
-                  href="/upload"
-                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all shadow-lg"
-                >
-                  Upload Statement
-                </Link>
-                <Link
-                  href="/chat"
-                  className="px-6 py-3 rounded-xl glass-card text-slate-200 font-semibold text-sm hover:bg-slate-800 transition-all"
-                >
-                  Ask Copilot
-                </Link>
+          {/* ── CTA BANNER ───────────────────────────────────────────────── */}
+          <section className="pb-24">
+            <div className="relative glass-card rounded-3xl p-8 sm:p-12 border border-blue-500/15 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/30 overflow-hidden">
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-blue-600/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative">
+                <div className="space-y-2 text-center sm:text-left">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-slate-100">
+                    Ready to know your financial health?
+                  </h3>
+                  <p className="text-slate-400 text-sm">
+                    Upload your document or chat with the AI copilot directly.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <Link
+                    href="/upload"
+                    className="px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all shadow-lg shadow-blue-500/20 whitespace-nowrap"
+                  >
+                    Upload Statement
+                  </Link>
+                  <Link
+                    href="/chat"
+                    className="px-7 py-3 rounded-xl glass-card text-slate-200 font-semibold text-sm hover:bg-slate-800/80 transition-all whitespace-nowrap border border-slate-800"
+                  >
+                    Ask Copilot
+                  </Link>
+                </div>
               </div>
             </div>
           </section>

@@ -1,7 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { UploadCloud, FileText, CheckCircle2, ShieldAlert, Cpu, Sparkles } from "lucide-react";
+import { useState, useCallback } from "react";
+import {
+  UploadCloud,
+  FileText,
+  CheckCircle2,
+  ShieldAlert,
+  Cpu,
+  Sparkles,
+  X,
+} from "lucide-react";
 
 interface UploadCardProps {
   onFileSelect: (file: File) => void;
@@ -11,6 +19,21 @@ interface UploadCardProps {
   onAnalyze: () => void;
 }
 
+const DOC_TYPES = [
+  { id: "salary_slip", label: "Salary Slip", desc: "Monthly pay slip PDF", emoji: "💼" },
+  { id: "bank_statement", label: "Bank Statement", desc: "Transactions & balance", emoji: "🏦" },
+  { id: "form16", label: "Form 16", desc: "Annual tax summary", emoji: "📋" },
+];
+
+const MAX_SIZE_MB = 10;
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+function validateFile(file: File): string | null {
+  if (file.type !== "application/pdf") return "Please select a valid PDF document.";
+  if (file.size > MAX_SIZE_BYTES) return `File size exceeds ${MAX_SIZE_MB}MB limit.`;
+  return null;
+}
+
 export default function UploadCard({
   onFileSelect,
   selectedFile,
@@ -18,110 +41,107 @@ export default function UploadCard({
   statusMessage,
   onAnalyze,
 }: UploadCardProps) {
-  const [docCategory, setDocCategory] = useState("salary_slip");
+  const [docType, setDocType] = useState("salary_slip");
   const [dragActive, setDragActive] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
 
-  const categories = [
-    { id: "salary_slip", label: "Salary Slip", desc: "Monthly pay slip PDF" },
-    { id: "bank_statement", label: "Bank Statement", desc: "Transactions & balance" },
-    { id: "tax_form", label: "Tax Form 16", desc: "Annual income tax summary" },
-  ];
+  const handleFile = useCallback(
+    (file: File) => {
+      const error = validateFile(file);
+      if (error) {
+        setFileError(error);
+        return;
+      }
+      setFileError(null);
+      onFileSelect(file);
+    },
+    [onFileSelect]
+  );
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+    if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
+    else setDragActive(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile.type === "application/pdf") {
-        if (droppedFile.size > 10 * 1024 * 1024) {
-          alert("File size exceeds 10MB limit. Please upload a smaller PDF.");
-          return;
-        }
-        onFileSelect(droppedFile);
-      } else {
-        alert("Please select or drop a valid PDF document.");
-      }
-    }
+    if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
   };
 
   return (
-    <div className="glass-panel rounded-3xl p-6 sm:p-10 max-w-2xl mx-auto shadow-2xl relative overflow-hidden border border-slate-800">
-      <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl -z-10" />
+    <div className="glass-panel rounded-3xl p-6 sm:p-10 max-w-xl mx-auto border border-slate-800/80 shadow-2xl relative overflow-hidden">
+      {/* Background glow */}
+      <div className="absolute top-0 right-0 w-56 h-56 bg-blue-600/8 rounded-full blur-3xl -z-10 pointer-events-none" />
 
-      {/* Category selector */}
+      {/* Step 1: Document Type */}
       <div className="mb-8">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">
           1. Select Document Type
-        </label>
+        </p>
         <div className="grid grid-cols-3 gap-3">
-          {categories.map((cat) => (
+          {DOC_TYPES.map((cat) => (
             <button
               key={cat.id}
               type="button"
-              onClick={() => setDocCategory(cat.id)}
-              className={`p-3.5 rounded-2xl border text-left transition-all ${
-                docCategory === cat.id
-                  ? "bg-blue-600/20 border-blue-500 text-blue-300 shadow-md shadow-blue-500/10"
-                  : "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+              onClick={() => setDocType(cat.id)}
+              className={`p-3.5 rounded-2xl border text-left transition-all focus:outline-none ${
+                docType === cat.id
+                  ? "bg-blue-600/15 border-blue-500/60 text-blue-300 shadow-md shadow-blue-500/10"
+                  : "bg-slate-900/50 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-300"
               }`}
             >
+              <span className="text-lg block mb-1">{cat.emoji}</span>
               <span className="block text-xs font-bold">{cat.label}</span>
-              <span className="block text-[10px] text-slate-400 mt-0.5">{cat.desc}</span>
+              <span className="block text-[10px] text-slate-500 mt-0.5">{cat.desc}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Drag and drop box */}
+      {/* Step 2: Upload Zone */}
       <div className="mb-8">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">
           2. Upload PDF Document
-        </label>
+        </p>
         <div
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center transition-all cursor-pointer relative ${
+          className={`relative border-2 border-dashed rounded-3xl p-8 sm:p-12 text-center transition-all cursor-pointer ${
             dragActive
-              ? "border-blue-400 bg-blue-500/10 scale-[1.01]"
+              ? "border-blue-400 bg-blue-500/8 scale-[1.01]"
               : selectedFile
-              ? "border-emerald-500/50 bg-emerald-950/20"
-              : "border-slate-700/80 hover:border-slate-500 bg-slate-900/40"
+              ? "border-emerald-500/50 bg-emerald-950/10"
+              : fileError
+              ? "border-red-500/50 bg-red-950/10"
+              : "border-slate-700/60 hover:border-slate-600 bg-slate-900/30"
           }`}
         >
           <input
             type="file"
             accept=".pdf"
             onChange={(e) => {
-              if (e.target.files?.length) {
-                const selected = e.target.files[0];
-                if (selected.size > 10 * 1024 * 1024) {
-                  alert("File size exceeds 10MB limit. Please upload a smaller PDF.");
-                  return;
-                }
-                onFileSelect(selected);
-              }
+              if (e.target.files?.[0]) handleFile(e.target.files[0]);
             }}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
           />
 
-          <div className="flex flex-col items-center justify-center space-y-3">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform ${
-              selectedFile ? "bg-emerald-500/20 text-emerald-400" : "bg-blue-600/20 text-blue-400"
-            }`}>
-              {selectedFile ? <FileText className="w-8 h-8" /> : <UploadCloud className="w-8 h-8" />}
+          <div className="flex flex-col items-center space-y-3">
+            <div
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${
+                selectedFile ? "bg-emerald-500/15 text-emerald-400" : "bg-blue-600/15 text-blue-400"
+              }`}
+            >
+              {selectedFile ? (
+                <FileText className="w-8 h-8" />
+              ) : (
+                <UploadCloud className="w-8 h-8" />
+              )}
             </div>
 
             {selectedFile ? (
@@ -132,60 +152,69 @@ export default function UploadCard({
                 <p className="text-sm font-bold text-slate-100 mt-2 truncate max-w-xs">
                   {selectedFile.name}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  {(selectedFile.size / 1024).toFixed(1)} KB • Click or drag another file to replace
+                <p className="text-xs text-slate-500 mt-1">
+                  {(selectedFile.size / 1024).toFixed(1)} KB · Click or drag to replace
                 </p>
               </div>
             ) : (
               <div>
                 <p className="text-sm font-semibold text-slate-200">
-                  Drag and drop your PDF here, or <span className="text-blue-400 underline">browse files</span>
+                  Drag & drop your PDF, or{" "}
+                  <span className="text-blue-400 underline underline-offset-2">browse files</span>
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
-                  Supports multi-page Salary Slips & Bank Statements (Max 10MB)
+                  Salary slips, bank statements, Form 16 · Max {MAX_SIZE_MB}MB
                 </p>
               </div>
             )}
           </div>
         </div>
+
+        {/* File error */}
+        {fileError && (
+          <div className="mt-3 flex items-center gap-2 text-xs text-red-400 bg-red-950/40 border border-red-500/30 rounded-xl px-3 py-2">
+            <X className="w-3.5 h-3.5 flex-shrink-0" />
+            {fileError}
+          </div>
+        )}
       </div>
 
-      {/* Dynamic Status Banner during Cold Start / Server Wakeup */}
+      {/* Status banner */}
       {loading && statusMessage && (
-        <div className="mb-4 p-3.5 rounded-2xl bg-blue-950/60 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center justify-center gap-2 animate-pulse">
-          <Sparkles className="w-4 h-4 text-purple-400 animate-spin" />
+        <div className="mb-4 px-4 py-3 rounded-2xl bg-blue-950/50 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center gap-2 animate-pulse">
+          <Sparkles className="w-4 h-4 text-purple-400 animate-spin flex-shrink-0" />
           <span>{statusMessage}</span>
         </div>
       )}
 
-      {/* Analysis action button */}
+      {/* Step 3: Analyze Button */}
       <button
         type="button"
         onClick={onAnalyze}
         disabled={!selectedFile || loading}
         className={`w-full py-4 rounded-2xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-lg ${
           !selectedFile || loading
-            ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-            : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-blue-500/25 hover:scale-[1.01]"
+            ? "bg-slate-800/80 text-slate-500 cursor-not-allowed border border-slate-700"
+            : "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-blue-500/20 hover:scale-[1.01] hover:shadow-blue-500/30"
         }`}
       >
         {loading ? (
           <>
             <Cpu className="w-5 h-5 animate-spin text-blue-300" />
-            <span>Processing Document & Extracting Profile...</span>
+            Processing Document…
           </>
         ) : (
           <>
-            <Cpu className="w-5 h-5 text-blue-300" />
-            <span>Extract & Run AI Financial Analysis</span>
+            <Cpu className="w-5 h-5 text-blue-200" />
+            Extract &amp; Analyse Financial Profile
           </>
         )}
       </button>
 
-      {/* Security footer note */}
-      <div className="mt-4 text-center flex items-center justify-center gap-1.5 text-xs text-slate-500">
-        <ShieldAlert className="w-3.5 h-3.5 text-slate-400" />
-        <span>Files are processed securely. Your financial data stays private.</span>
+      {/* Security note */}
+      <div className="mt-4 text-center flex items-center justify-center gap-1.5 text-xs text-slate-600">
+        <ShieldAlert className="w-3.5 h-3.5 text-slate-500" />
+        Files are processed securely and never stored permanently.
       </div>
     </div>
   );
