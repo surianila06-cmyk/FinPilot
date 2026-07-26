@@ -35,9 +35,10 @@ export default function UploadPage() {
       console.log("Stored Profile:", localStorage.getItem("financialProfile"));
       console.log("Stored Score:", localStorage.getItem("financialScore"));
       router.push("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      alert(error?.message || "Upload failed. Please check network connection and try again.");
+      const errorMessage = error instanceof Error ? error.message : "Upload failed. Please check network connection and try again.";
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -42,7 +42,7 @@ export default function ChatPage() {
       };
 
       setMessages((prev) => [...prev, aiMessage]);
-    } catch (_error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
