@@ -1,7 +1,7 @@
-import os
-import json
-import re
-from groq import Groq
+try:
+    from groq import Groq
+except ImportError:
+    Groq = None
 from app.config.settings import GROQ_API_KEY
 
 
@@ -76,7 +76,7 @@ def fallback_extract_profile(text: str):
 def extract_financial_profile(text: str):
     api_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY")
     
-    if api_key:
+    if api_key and Groq is not None:
         try:
             client = Groq(api_key=api_key)
             prompt = f"""
@@ -95,8 +95,8 @@ IMPORTANT RULES:
 Return ONLY this JSON format:
 {{
     "monthly_income": 0,
-    "monthly_expenses": null,
-    "savings": null,
+    "monthly_expenses": 0,
+    "savings": 0,
     "loans": 0,
     "monthly_emi": 0,
     "insurance": 0

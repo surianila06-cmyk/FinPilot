@@ -6,7 +6,9 @@ def calculate_financial_score(profile):
     - Emergency Savings Reserve Months
     - Loan Burden Ratio
     """
-    if hasattr(profile, "dict"):
+    if hasattr(profile, "model_dump"):
+        data = profile.model_dump()
+    elif hasattr(profile, "dict"):
         data = profile.dict()
     elif isinstance(profile, dict):
         data = profile

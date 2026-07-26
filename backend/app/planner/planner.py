@@ -2,11 +2,12 @@ from app.tools.gold_tool import get_gold_price
 from app.tools.loan_tool import loan_analysis
 from app.tools.budget_tool import budget_analysis
 from app.tools.goal_tool import goal_analysis
+from app.services.ai_advisor import generate_advice
 
 
 def planner(query: str, profile: dict):
 
-    query = query.lower()
+    query_lower = (query or "").lower().strip()
 
     gold_words = [
         "gold",
@@ -14,6 +15,18 @@ def planner(query: str, profile: dict):
         "jewelry",
         "gold etf",
         "sovereign gold"
+    ]
+
+    goal_words = [
+        "buy",
+        "purchase",
+        "afford",
+        "bike",
+        "car",
+        "vehicle",
+        "house",
+        "vacation",
+        "laptop"
     ]
 
     loan_words = [
@@ -30,44 +43,26 @@ def planner(query: str, profile: dict):
         "expenses",
         "save",
         "saving",
-        "money",
-        "spending"
+        "spending",
+        "surplus"
     ]
 
-    goal_words = [
-        "buy",
-        "purchase",
-        "afford",
-        "goal",
-        "plan",
-        "bike",
-        "car",
-        "house",
-        "vacation"
-    ]
-
-    if any(word in query for word in gold_words):
-        return get_gold_price(profile)
-
-    elif any(word in query for word in loan_words):
-        return loan_analysis(profile)
-
-    elif any(word in query for word in budget_words):
-        return budget_analysis(profile)
-
-    elif any(word in query for word in goal_words):
+    # Specific goal purchase checks take precedence over generic borrow/loan keywords
+    if any(word in query_lower for word in goal_words):
         return goal_analysis(profile, query)
 
+    elif any(word in query_lower for word in gold_words):
+        return get_gold_price(profile)
+
+    elif any(word in query_lower for word in loan_words):
+        return loan_analysis(profile)
+
+    elif any(word in query_lower for word in budget_words):
+        return budget_analysis(profile)
+
+    # Use AI Advisor to generate personalized conversational response for open-ended queries
+    advisor_response = generate_advice({"question": query, "profile": profile})
+
     return {
-        "message":
-        "👋 I can help you with:\n\n"
-        "• Budget planning\n"
-        "• Savings advice\n"
-        "• Gold investments\n"
-        "• Loans and EMI\n"
-        "• Financial goals\n\n"
-        "Ask me something like:\n"
-        "• Can I buy a bike?\n"
-        "• Should I invest in gold?\n"
-        "• Can I take a home loan?"
+        "message": advisor_response
     }

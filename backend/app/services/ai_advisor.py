@@ -1,5 +1,7 @@
-import os
-from groq import Groq
+try:
+    from groq import Groq
+except ImportError:
+    Groq = None
 from app.config.settings import GROQ_API_KEY
 
 
@@ -33,7 +35,7 @@ def fallback_advice(context):
 def generate_advice(context):
     api_key = GROQ_API_KEY or os.getenv("GROQ_API_KEY")
     
-    if api_key:
+    if api_key and Groq is not None:
         try:
             client = Groq(api_key=api_key)
             prompt = f"""

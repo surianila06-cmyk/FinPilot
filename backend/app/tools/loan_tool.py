@@ -1,8 +1,11 @@
 def loan_analysis(profile):
 
-    income = profile.get("monthly_income", 0)
-    loans = profile.get("loans", 0)
-    emi = profile.get("monthly_emi", 0)
+    if not isinstance(profile, dict):
+        profile = {}
+
+    income = float(profile.get("monthly_income") or 0)
+    loans = float(profile.get("loans") or 0)
+    emi = float(profile.get("monthly_emi") or 0)
 
     emi_ratio = 0
 

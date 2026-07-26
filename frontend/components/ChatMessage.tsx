@@ -11,6 +11,11 @@ export default function ChatMessage({ sender, text, timestamp }: MessageProps) {
 
   // Formatter to render status badges if text contains icons like ✅ or ⚠
   const getBadgeType = (content: string) => {
+    const trimmed = content.trim();
+    if (trimmed.startsWith("✅")) return { type: "success", label: "Approved / Safe", icon: CheckCircle2 };
+    if (trimmed.startsWith("⚠") || trimmed.startsWith("❌")) return { type: "warning", label: "High Caution / Debt Risk", icon: AlertTriangle };
+    if (trimmed.startsWith("💡")) return { type: "info", label: "AI Financial Advice", icon: Info };
+
     if (content.includes("✅")) return { type: "success", label: "Approved / Safe", icon: CheckCircle2 };
     if (content.includes("⚠") || content.includes("❌")) return { type: "warning", label: "High Caution / Debt Risk", icon: AlertTriangle };
     if (content.includes("💡")) return { type: "info", label: "AI Financial Advice", icon: Info };

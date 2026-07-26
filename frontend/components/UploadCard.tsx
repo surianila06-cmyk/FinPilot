@@ -44,6 +44,10 @@ export default function UploadCard({
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0];
       if (droppedFile.type === "application/pdf") {
+        if (droppedFile.size > 10 * 1024 * 1024) {
+          alert("File size exceeds 10MB limit. Please upload a smaller PDF.");
+          return;
+        }
         onFileSelect(droppedFile);
       } else {
         alert("Please select or drop a valid PDF document.");
@@ -102,7 +106,12 @@ export default function UploadCard({
             accept=".pdf"
             onChange={(e) => {
               if (e.target.files?.length) {
-                onFileSelect(e.target.files[0]);
+                const selected = e.target.files[0];
+                if (selected.size > 10 * 1024 * 1024) {
+                  alert("File size exceeds 10MB limit. Please upload a smaller PDF.");
+                  return;
+                }
+                onFileSelect(selected);
               }
             }}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"

@@ -1,4 +1,14 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://finpilot-backend-jodg.onrender.com";
+function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+    return "http://127.0.0.1:8000";
+  }
+  return "https://finpilot-backend-jodg.onrender.com";
+}
+
+const BASE_URL = getBaseUrl();
 
 // Helper function to ping backend root to trigger cold start wake-up
 export async function pingBackend(): Promise<boolean> {

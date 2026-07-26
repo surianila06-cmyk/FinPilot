@@ -1,7 +1,10 @@
 def goal_analysis(profile, query):
 
-    income = profile.get("monthly_income", 0)
-    savings = profile.get("savings", 0)
+    if not isinstance(profile, dict):
+        profile = {}
+
+    income = float(profile.get("monthly_income") or 0)
+    savings = float(profile.get("savings") or 0)
 
     goal_amount = 0
     goal_name = "financial goal"

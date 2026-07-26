@@ -1,40 +1,39 @@
 def get_gold_price(profile):
+    if not isinstance(profile, dict):
+        profile = {}
 
-    gold_price = 9800000
+    savings = float(profile.get("savings") or 0)
+    income = float(profile.get("monthly_income") or 0)
 
-    savings = profile.get("savings", 0)
-    income = profile.get("monthly_income", 0)
-
-    remaining = max(gold_price - savings, 0)
-
-    monthly_save = income * 0.3
-
-    months = None
+    # Modular gold allocation benchmark (e.g. 10g 24k gold ~ ₹75,000 or Digital Gold SIP)
+    target_gold_investment = 75000
+    monthly_save = income * 0.2
 
     if monthly_save > 0:
-        months = round(remaining / monthly_save)
-
-    if savings >= gold_price:
-
-        message = (
-            "✅ You can afford this purchase.\n\n"
-            f"Gold Price: ₹{gold_price:,}\n"
-            f"Current Savings: ₹{savings:,}\n\n"
-            "Make sure you still have enough emergency savings after buying."
-        )
-
+        months = max(1, round(target_gold_investment / monthly_save))
+        time_text = f"Estimated time to build a ₹{target_gold_investment:,} gold allocation: ~{months} months."
     else:
+        time_text = "Build an emergency fund before starting regular gold investments."
 
+    if savings >= 50000:
         message = (
-            "❌ Buying 1 kg of gold is not recommended right now.\n\n"
-            f"Gold Price: ₹{gold_price:,}\n"
-            f"Current Savings: ₹{savings:,}\n"
-            f"Monthly Income: ₹{income:,}\n\n"
-            f"Estimated time to save: {months} months.\n\n"
+            "✅ Gold investment is a healthy portfolio diversification option.\n\n"
+            f"Monthly Income: ₹{income:,.0f}\n"
+            f"Current Savings: ₹{savings:,.0f}\n\n"
             "Suggestions:\n"
-            "• Increase your monthly savings.\n"
-            "• Build an emergency fund first.\n"
-            "• Consider Gold ETFs or Sovereign Gold Bonds."
+            "• Allocate 5% - 10% of total savings to Gold.\n"
+            "• Sovereign Gold Bonds (SGB) offer 2.5% p.a. interest + capital gains tax exemption.\n"
+            "• Digital Gold or Gold ETFs allow low-cost systematic monthly investing (SIP)."
+        )
+    else:
+        message = (
+            "⚠ Exercise caution before starting gold investments.\n\n"
+            f"Monthly Income: ₹{income:,.0f}\n"
+            f"Current Savings: ₹{savings:,.0f}\n\n"
+            f"{time_text}\n\n"
+            "Suggestions:\n"
+            "• Build 3-6 months of liquid emergency reserves first.\n"
+            "• Start small with Digital Gold SIPs (e.g., ₹500/month)."
         )
 
     return {
