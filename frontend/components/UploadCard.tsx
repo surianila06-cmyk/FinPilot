@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, FileText, CheckCircle2, ShieldAlert, Cpu } from "lucide-react";
+import { UploadCloud, FileText, CheckCircle2, ShieldAlert, Cpu, Sparkles } from "lucide-react";
 
 interface UploadCardProps {
   onFileSelect: (file: File) => void;
   selectedFile: File | null;
   loading: boolean;
+  statusMessage?: string;
   onAnalyze: () => void;
 }
 
@@ -14,6 +15,7 @@ export default function UploadCard({
   onFileSelect,
   selectedFile,
   loading,
+  statusMessage,
   onAnalyze,
 }: UploadCardProps) {
   const [docCategory, setDocCategory] = useState("salary_slip");
@@ -139,6 +141,14 @@ export default function UploadCard({
         </div>
       </div>
 
+      {/* Dynamic Status Banner during Cold Start / Server Wakeup */}
+      {loading && statusMessage && (
+        <div className="mb-4 p-3.5 rounded-2xl bg-blue-950/60 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center justify-center gap-2 animate-pulse">
+          <Sparkles className="w-4 h-4 text-purple-400 animate-spin" />
+          <span>{statusMessage}</span>
+        </div>
+      )}
+
       {/* Analysis action button */}
       <button
         type="button"
@@ -153,7 +163,7 @@ export default function UploadCard({
         {loading ? (
           <>
             <Cpu className="w-5 h-5 animate-spin text-blue-300" />
-            <span>Parsing Document & Extracting Profile...</span>
+            <span>Processing Document & Extracting Profile...</span>
           </>
         ) : (
           <>

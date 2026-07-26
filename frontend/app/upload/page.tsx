@@ -12,6 +12,7 @@ export default function UploadPage() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string>("");
   const [extractedData, setExtractedData] = useState<Record<string, unknown> | null>(null);
 
   const handleUpload = async () => {
@@ -19,7 +20,8 @@ export default function UploadPage() {
 
     try {
       setLoading(true);
-      const result = await uploadPDF(file);
+      setStatusMessage("Connecting to server...");
+      const result = await uploadPDF(file, (msg) => setStatusMessage(msg));
 
       // Store in localStorage for persistence
       localStorage.setItem("financialProfile", JSON.stringify(result.financial_profile));
@@ -28,8 +30,8 @@ export default function UploadPage() {
       setExtractedData(result);
     } catch (error) {
       console.error(error);
-      const errorMessage = error instanceof Error ? error.message : "Upload failed. Please check network connection and try again.";
-      alert(errorMessage);
+      const errorMessage = error instanceof Error ? error.message : "Upload failed. Please try again.";
+      setStatusMessage(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -65,6 +67,7 @@ export default function UploadPage() {
             onFileSelect={setFile}
             selectedFile={file}
             loading={loading}
+            statusMessage={statusMessage}
             onAnalyze={handleUpload}
           />
         ) : (
