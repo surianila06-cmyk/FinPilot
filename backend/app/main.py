@@ -12,14 +12,15 @@ app = FastAPI(
     description="Agentic AI Financial Copilot — PDF parsing, financial health scoring, goal planning & personalized advice.",
 )
 
-# ── CORS ─────────────────────────────────────────────────────────────────────
+# ---------------------- CORS ----------------------
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:5173",
-        "https://fin-pilot-j9xm-583af1r8s-surianila06-cmyks-projects.vercel.app",
+        "http://127.0.0.1:5173",
     ],
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
@@ -27,12 +28,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Routers ───────────────────────────────────────────────────────────────────
+# ---------------------- Routers ----------------------
+
 app.include_router(profile_router)
 app.include_router(gemini_router)
 app.include_router(upload_router)
 app.include_router(chat_router)
 
+# ---------------------- Root ----------------------
 
 @app.get("/")
 async def root():
@@ -42,6 +45,7 @@ async def root():
         "version": "2.0.0",
     }
 
+# ---------------------- Health Check ----------------------
 
 @app.get("/api/health")
 async def health():
