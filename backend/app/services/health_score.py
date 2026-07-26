@@ -1,39 +1,54 @@
-def calculate_financial_score(profile: dict):
+def calculate_financial_score(profile):
+    """
+    Calculate Financial Health Score (0 to 100) based on:
+    - Expense-to-Income Ratio
+    - Debt-to-Income (EMI) Ratio
+    - Emergency Savings Reserve Months
+    - Loan Burden Ratio
+    """
+    if hasattr(profile, "dict"):
+        data = profile.dict()
+    elif isinstance(profile, dict):
+        data = profile
+    else:
+        data = {}
+
+    income = float(data.get("monthly_income") or 0)
+    expenses = float(data.get("monthly_expenses") or 0)
+    savings = float(data.get("savings") or 0)
+    loans = float(data.get("loans") or 0)
+    emi = float(data.get("monthly_emi") or 0)
 
     score = 100
 
-    income = profile.get("monthly_income", 0)
-    expenses = profile.get("monthly_expenses", 0)
-    savings = profile.get("savings", 0)
-    loans = profile.get("loans", 0)
-    emi = profile.get("monthly_emi", 0)
-
-    # Expense ratio
+    # Expense ratio penalty
     if income > 0:
         expense_ratio = expenses / income
-
         if expense_ratio > 0.7:
-            score -= 25
+            score -= 30
         elif expense_ratio > 0.5:
             score -= 15
+        elif expense_ratio < 0.3:
+            score += 5
 
-    # EMI ratio
+    # EMI ratio penalty
     if income > 0:
         emi_ratio = emi / income
-
         if emi_ratio > 0.4:
-            score -= 20
+            score -= 25
         elif emi_ratio > 0.2:
             score -= 10
 
-    # High loans
+    # High loans penalty
     if loans > income * 12:
         score -= 20
 
-    # Savings bonus
-    if savings > income * 6:
-        score += 10
+    # Savings reserve bonus / penalty
+    if expenses > 0:
+        reserve_months = savings / expenses
+        if reserve_months >= 6:
+            score += 10
+        elif reserve_months < 2:
+            score -= 15
 
-    score = max(0, min(score, 100))
-
-    return score
+    return max(0, min(int(round(score)), 100))
