@@ -19,7 +19,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:5173",
-        "https://fin-pilot-zeta.vercel.app",
+        "https://fin-pilot-j9xm-583af1r8s-surianila06-cmyks-projects.vercel.app",
     ],
     allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
