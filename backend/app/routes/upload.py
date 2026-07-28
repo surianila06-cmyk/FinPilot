@@ -46,6 +46,12 @@ async def upload_pdf(file: UploadFile = File(...)):
             if text:
                 extracted_text += text + "\n"
 
+        if not extracted_text.strip():
+            raise HTTPException(
+                status_code=422,
+                detail="Could not extract readable text from PDF.",
+            )
+
         # ── Extract financial profile ────────────────────────────────────
         profile = extract_financial_profile(extracted_text)
         score = calculate_financial_score(profile)

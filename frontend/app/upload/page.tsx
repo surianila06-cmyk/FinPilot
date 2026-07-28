@@ -133,7 +133,9 @@ export default function UploadPage() {
                     <FileCheck className="w-6 h-6" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-lg font-bold text-slate-100">Document Parsed Successfully!</h3>
+                    <h3 className="text-lg font-bold text-slate-100">
+  {result.is_fallback ? "Backend Upload Failed" : "Document Parsed Successfully!"}
+</h3>
                     <p className="text-xs text-slate-500 truncate">{result.filename}</p>
                     <p className="text-xs text-slate-600">{result.pages} page(s) processed</p>
                   </div>

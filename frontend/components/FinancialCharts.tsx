@@ -23,12 +23,12 @@ const TOOLTIP_STYLE = {
 };
 
 export default function FinancialCharts({ profile, healthScore }: FinancialChartsProps) {
-  const income = profile?.monthly_income || 50000;
-  const expenses = profile?.monthly_expenses || 20000;
-  const emi = profile?.monthly_emi || 0;
-  const insurance = profile?.insurance || 0;
+  const income = profile?.monthly_income ?? 0;
+  const expenses = profile?.monthly_expenses ?? 0;
+  const emi = profile?.monthly_emi ?? 0;
+  const insurance = profile?.insurance ?? 0;
   const surplus = Math.max(income - expenses - emi, 0);
-  const savings = profile?.savings || 10000;
+  const savings = profile?.savings ?? 0;
 
   // ── Pie Chart: Income Allocation ─────────────────────────────────────
   const pieData = useMemo(

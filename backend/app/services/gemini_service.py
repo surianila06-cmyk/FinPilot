@@ -70,13 +70,13 @@ def fallback_extract_profile(text: str) -> dict:
                 insurance = max_val
 
     return {
-        "monthly_income": income or 50000.0,
-        "monthly_expenses": expenses or 15000.0,
-        "savings": savings or 10000.0,
-        "loans": loans,
-        "monthly_emi": emi,
-        "insurance": insurance,
-    }
+    "monthly_income": income,
+    "monthly_expenses": expenses,
+    "savings": savings,
+    "loans": loans,
+    "monthly_emi": emi,
+    "insurance": insurance,
+}
 
 
 def extract_financial_profile(text: str) -> dict:

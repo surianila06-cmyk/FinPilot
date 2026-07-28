@@ -1,17 +1,11 @@
 import type { UploadResponse, ChatResponse, ChatHistoryItem } from "@/types/financial";
 
-function getBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  if (
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-  ) {
-    return "http://127.0.0.1:8000";
-  }
-  return "https://finpilot-backend-jodg.onrender.com";
-}
+// ── Backend URL ──────────────────────────────────────────────────────────────
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  "https://finpilot-backend-jodg.onrender.com";
 
-const BASE_URL = getBaseUrl();
+console.log("API URL:", BASE_URL);
 const DEFAULT_TIMEOUT_MS = 45000;
 
 class ApiError extends Error {
@@ -94,11 +88,10 @@ export async function uploadPDF(
       }
 
       return (await response.json()) as UploadResponse;
-    } catch (err) {
+        } catch (err) {
       console.warn(`[api] Upload attempt ${attempt} failed:`, err);
       if (attempt === MAX_RETRIES) {
-        if (onStatus) onStatus("Server cold-start detected — using smart client parser…");
-        return clientFallbackProfile(file.name);
+        throw err instanceof Error ? err : new Error("Upload failed after retries.");
       }
       await new Promise((r) => setTimeout(r, 4000));
     }
