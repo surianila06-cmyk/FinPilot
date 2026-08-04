@@ -88,7 +88,7 @@ export default function Dashboard() {
     {
       title: "Active EMI",
       value: active.monthly_emi ? `₹${active.monthly_emi.toLocaleString()}/mo` : "Zero",
-      subtitle: active.loans > 0 ? `Total principal: ₹${active.loans.toLocaleString()}` : "No active loans",
+      subtitle: active.loans > 0 ? `${active.loans} active loan${active.loans > 1 ? "s" : ""}` : "No active loans",
       icon: <Landmark className="w-5 h-5" />,
       accentColor: "rose" as const,
       trend: { text: active.loans === 0 ? "Debt Free 🎉" : "Under 35% DTI", positive: active.loans === 0 },
@@ -141,7 +141,7 @@ export default function Dashboard() {
             badge: "warning" as const,
             badgeLabel: "Debt Strategy",
             title: "Accelerate Loan Repayment",
-            desc: `EMI of ₹${(active.monthly_emi || 0).toLocaleString()}/month on ₹${active.loans.toLocaleString()} principal. Prepaying just 5% of principal annually can reduce tenure by ~2 years and save significant interest.`,
+            desc: `EMI of ₹${(active.monthly_emi || 0).toLocaleString()}/month across ${active.loans} active loan(s). Prepaying just 5% of principal annually can reduce tenure by ~2 years and save significant interest.`,
           },
         ]
       : [

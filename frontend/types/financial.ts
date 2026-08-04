@@ -6,6 +6,16 @@ export interface FinancialProfile {
   monthly_emi: number;
   insurance: number;
   financial_score?: number;
+  document_type?: string;
+  liquid_savings?: number;
+  savings_source?: string | null;
+  investments?: number;
+  active_loans?: number;
+  reasoning?: {
+    loan_detection?: string;
+    income_detection?: string;
+    expense_detection?: string;
+  };
 }
 
 export interface UploadResponse {

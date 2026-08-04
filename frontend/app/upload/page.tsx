@@ -61,7 +61,7 @@ export default function UploadPage() {
         { label: "Monthly Income", value: `₹${fp.monthly_income.toLocaleString()}`, icon: CircleDollarSign, color: "text-blue-400" },
         { label: "Monthly Expenses", value: `₹${fp.monthly_expenses.toLocaleString()}`, icon: Wallet, color: "text-amber-400" },
         { label: "Liquid Savings", value: `₹${fp.savings.toLocaleString()}`, icon: PiggyBank, color: "text-emerald-400" },
-        { label: "Active Loans", value: `₹${fp.loans.toLocaleString()}`, icon: Landmark, color: "text-rose-400" },
+        { label: "Active Loans", value: fp.loans > 0 ? `${fp.loans} active` : "None", icon: Landmark, color: "text-rose-400" },
         { label: "Monthly EMI", value: `₹${(fp.monthly_emi || 0).toLocaleString()}`, icon: Landmark, color: "text-orange-400" },
         { label: "Insurance", value: `₹${(fp.insurance || 0).toLocaleString()}`, icon: CircleDollarSign, color: "text-purple-400" },
       ]
