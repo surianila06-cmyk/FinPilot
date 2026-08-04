@@ -32,8 +32,10 @@ export default function UploadPage() {
 
     try {
       const data = await uploadPDF(file, (msg) => setStatusMessage(msg));
-      localStorage.setItem("financialProfile", JSON.stringify(data.financial_profile));
-      localStorage.setItem("financialScore", JSON.stringify(data.financial_score));
+      if (!data.is_fallback) {
+        localStorage.setItem("financialProfile", JSON.stringify(data.financial_profile));
+        localStorage.setItem("financialScore", JSON.stringify(data.financial_score));
+      }
       setResult(data);
       setStep("review");
     } catch (err) {

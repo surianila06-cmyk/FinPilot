@@ -6,7 +6,8 @@ const BASE_URL =
   "https://finpilot-backend-jodg.onrender.com";
 
 console.log("API URL:", BASE_URL);
-const DEFAULT_TIMEOUT_MS = 45000;
+// Render free-tier cold starts can exceed 60s; keep the browser timeout long enough.
+const DEFAULT_TIMEOUT_MS = 120000;
 
 class ApiError extends Error {
   status: number;
@@ -32,32 +33,13 @@ async function fetchWithTimeout(
 }
 
 // ── Ping ─────────────────────────────────────────────────────────────────────
-export async function pingBackend(): Promise<boolean> {
+export async function pingBackend(timeoutMs = 25000): Promise<boolean> {
   try {
-    const res = await fetchWithTimeout(`${BASE_URL}/`, {}, 8000);
+    const res = await fetchWithTimeout(`${BASE_URL}/api/health`, {}, timeoutMs);
     return res.ok;
   } catch {
     return false;
   }
-}
-
-// ── Client-side fallback profile ─────────────────────────────────────────────
-function clientFallbackProfile(filename: string): UploadResponse {
-  return {
-    filename,
-    pages: 1,
-    financial_profile: {
-      monthly_income: 75000,
-      monthly_expenses: 25000,
-      savings: 350000,
-      loans: 120000,
-      monthly_emi: 6500,
-      insurance: 3000,
-    },
-    financial_score: 78,
-    score_label: "Good",
-    is_fallback: true,
-  };
 }
 
 // ── Upload PDF ────────────────────────────────────────────────────────────────
@@ -66,6 +48,9 @@ export async function uploadPDF(
   onStatus?: (msg: string) => void
 ): Promise<UploadResponse> {
   const MAX_RETRIES = 3;
+
+  // Warm the backend instance before uploading (Render free tier spins down on idle).
+  await pingBackend();
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
@@ -88,7 +73,7 @@ export async function uploadPDF(
       }
 
       return (await response.json()) as UploadResponse;
-        } catch (err) {
+    } catch (err) {
       console.warn(`[api] Upload attempt ${attempt} failed:`, err);
       if (attempt === MAX_RETRIES) {
         throw err instanceof Error ? err : new Error("Upload failed after retries.");
@@ -97,7 +82,7 @@ export async function uploadPDF(
     }
   }
 
-  return clientFallbackProfile(file.name);
+  throw new Error("Upload failed after retries.");
 }
 
 // ── Chat ──────────────────────────────────────────────────────────────────────

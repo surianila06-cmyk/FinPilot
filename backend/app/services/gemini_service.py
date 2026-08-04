@@ -7,7 +7,8 @@ try:
 except ImportError:
     Groq = None
 
-from app.config.settings import GROQ_API_KEY
+from fastapi import HTTPException
+from app.config.settings import GROQ_API_KEY, APP_ENV
 
 
 def _safe_float(val) -> float:
@@ -130,5 +131,10 @@ Financial Document:
 
         except Exception as exc:
             print(f"[gemini_service] Groq API error: {exc}. Falling back to regex parser.")
+            if APP_ENV == "production":
+                raise HTTPException(
+                    status_code=503,
+                    detail="LLM extraction temporarily unavailable. Please try again.",
+                ) from exc
 
     return fallback_extract_profile(text)

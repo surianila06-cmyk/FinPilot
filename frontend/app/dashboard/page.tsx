@@ -39,19 +39,19 @@ export default function Dashboard() {
         if (sp) setProfile(JSON.parse(sp) as FinancialProfile);
         if (ss) {
           const parsed = JSON.parse(ss);
-          setScore(typeof parsed === "number" ? parsed : parsed?.score ?? 75);
+          setScore(typeof parsed === "number" ? parsed : parsed?.score ?? 0);
         } else {
-          setScore(75);
+          setScore(0);
         }
       } catch {
-        setScore(75);
+        setScore(0);
       }
     }, 0);
     return () => clearTimeout(id);
   }, []);
 
   const active = profile ?? FALLBACK_PROFILE;
-  const healthScore = score > 0 ? score : 78;
+  const healthScore = score;
   const surplus = active.monthly_income - active.monthly_expenses - (active.monthly_emi || 0);
   const reserveMonths = active.monthly_expenses > 0
     ? Math.round(active.savings / active.monthly_expenses)

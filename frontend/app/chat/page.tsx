@@ -142,7 +142,7 @@ export default function ChatPage() {
 
               {/* Score Gauge */}
               <div className="flex justify-center py-3">
-                <ScoreGauge score={score || 75} size={140} />
+                <ScoreGauge score={score} size={140} />
               </div>
 
               <div className="space-y-2 mt-4">
