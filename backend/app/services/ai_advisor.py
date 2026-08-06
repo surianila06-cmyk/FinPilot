@@ -7,7 +7,7 @@ except ImportError:
 
 from app.config.settings import GROQ_API_KEY
 
-_SYSTEM_PROMPT = """You are FinPilot AI, an expert and empathetic Indian personal finance advisor.
+_SYSTEM_PROMPT = """You are Prospera AI, an expert and empathetic Indian personal finance advisor.
 
 Your persona:
 - Warm, encouraging, and data-driven
@@ -76,7 +76,7 @@ def fallback_advice(profile: dict, question: str) -> str:
                 "Let compounding do the heavy lifting for you! 📈")
 
     else:
-        return (f"💡 FinPilot Financial Snapshot:\n\n"
+        return (f"💡 Prospera Financial Snapshot:\n\n"
                 f"• Monthly Income: ₹{income:,.0f} | Surplus: ₹{surplus:,.0f}\n"
                 f"• Savings: ₹{savings:,.0f}\n"
                 "• Save at least 20% of income monthly.\n"

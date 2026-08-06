@@ -198,7 +198,7 @@ export default function Dashboard() {
             </Link>
             <Link href="/chat">
               <button className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold shadow-lg shadow-blue-500/20 flex items-center gap-2">
-                <MessageSquareText className="w-4 h-4" /> Ask FinPilot AI
+                <MessageSquareText className="w-4 h-4" /> Ask Prospera AI
               </button>
             </Link>
           </div>
@@ -249,7 +249,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-400" /> FinPilot AI Recommendations
+                  <Sparkles className="w-5 h-5 text-purple-400" /> Prospera AI Recommendations
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">Personalised to your financial profile</p>
               </div>

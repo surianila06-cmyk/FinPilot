@@ -36,7 +36,7 @@ export default function Footer() {
                 <TrendingUp className="w-4 h-4 text-blue-400" />
               </div>
               <span className="text-xl font-extrabold text-slate-100 tracking-tight">
-                FinPilot AI
+                Prospera AI
               </span>
             </div>
             <p className="text-slate-500 text-xs leading-relaxed max-w-sm">
@@ -87,10 +87,10 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
-          <p>© {new Date().getFullYear()} FinPilot AI. Built for smarter financial decisions.</p>
+          <p>© {new Date().getFullYear()} Prospera AI. Built for smarter financial decisions.</p>
           <div className="flex items-center gap-4">
-            <a href="mailto:support@finpilot.ai" className="hover:text-slate-400 transition-colors flex items-center gap-1">
-              <Mail className="w-3.5 h-3.5" /> support@finpilot.ai
+            <a href="mailto:support@prospera.ai" className="hover:text-slate-400 transition-colors flex items-center gap-1">
+              <Mail className="w-3.5 h-3.5" /> support@prospera.ai
             </a>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors flex items-center gap-1">
               <Github className="w-3.5 h-3.5" /> GitHub

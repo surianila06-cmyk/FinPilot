@@ -49,7 +49,7 @@ export default function ChatMessage({ sender, text, timestamp }: MessageItem) {
             </span>
             <span className="text-[10px] text-slate-500 flex items-center gap-1 ml-auto">
               <Sparkles className="w-3 h-3 text-purple-400" />
-              FinPilot AI
+              Prospera AI
             </span>
           </div>
         )}

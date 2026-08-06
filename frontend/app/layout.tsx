@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "FinPilot AI — Intelligent Financial Copilot",
+  title: "Prospera AI — Intelligent Financial Copilot",
   description:
     "Upload salary slips or bank statements. Get instant AI-powered financial health scores, personalized investment advice, loan eligibility checks, and wealth-building strategies.",
   keywords: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "Budget Planner",
   ],
   openGraph: {
-    title: "FinPilot AI — Intelligent Financial Copilot",
+    title: "Prospera AI — Intelligent Financial Copilot",
     description: "AI-powered personal finance management for India.",
     type: "website",
   },

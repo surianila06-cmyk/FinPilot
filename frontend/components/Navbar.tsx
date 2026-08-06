@@ -62,7 +62,7 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:block">
               <span className="text-lg font-extrabold tracking-tight glow-text-gradient">
-                FinPilot
+                Prospera
               </span>
               <span className="text-lg font-extrabold text-slate-400"> AI</span>
               <p className="text-[9px] text-slate-500 tracking-widest uppercase font-medium -mt-0.5">
@@ -158,7 +158,7 @@ export default function Navbar() {
               className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold"
             >
               <Sparkles className="w-4 h-4" />
-              Ask FinPilot AI
+              Ask Prospera AI
             </Link>
           </div>
         </div>

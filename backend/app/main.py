@@ -8,7 +8,7 @@ from app.routes.upload import router as upload_router
 from app.routes.chat import router as chat_router
 
 app = FastAPI(
-    title="FinPilot AI Backend",
+    title="Prospera AI Backend",
     version="2.0.0",
     description="Agentic AI Financial Copilot — PDF parsing, financial health scoring, goal planning & personalized advice.",
 )
@@ -53,7 +53,7 @@ app.include_router(chat_router)
 async def root():
     return {
         "status": "success",
-        "message": "FinPilot AI Backend v2.0 is running!",
+        "message": "Prospera AI Backend v2.0 is running!",
         "version": "2.0.0",
     }
 
@@ -63,6 +63,6 @@ async def root():
 async def health():
     return {
         "status": "healthy",
-        "service": "FinPilot AI Backend",
+        "service": "Prospera AI Backend",
         "version": "2.0.0",
     }

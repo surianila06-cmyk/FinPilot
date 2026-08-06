@@ -28,7 +28,7 @@ const PROMPT_CHIPS = [
 const WELCOME_MESSAGE: MessageItem = {
   sender: "ai",
   text:
-    "💡 Welcome to FinPilot AI!\n\n" +
+    "💡 Welcome to Prospera AI!\n\n" +
     "I'm your intelligent financial copilot. You can ask me anything about:\n" +
     "• Budget optimization & expense analysis\n" +
     "• SIP projections & mutual fund strategy\n" +
@@ -199,7 +199,7 @@ export default function ChatPage() {
                   <Bot className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-slate-100">FinPilot AI Copilot</h2>
+                  <h2 className="text-sm font-bold text-slate-100">Prospera AI Copilot</h2>
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-[10px] text-slate-500">Online · LLM Powered</span>
@@ -226,7 +226,7 @@ export default function ChatPage() {
                       <span className="typing-dot" />
                       <span className="typing-dot" />
                       <span className="typing-dot" />
-                      <span className="ml-2 text-xs text-slate-500">FinPilot is thinking…</span>
+                      <span className="ml-2 text-xs text-slate-500">Prospera is thinking…</span>
                     </div>
                   </div>
                 </div>

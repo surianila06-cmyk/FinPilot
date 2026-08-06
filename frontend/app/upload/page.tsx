@@ -81,7 +81,7 @@ export default function UploadPage() {
             Upload Financial Document
           </h1>
           <p className="text-sm text-slate-400">
-            Upload your Salary Slip, Bank Statement, or Form 16. FinPilot AI will automatically
+            Upload your Salary Slip, Bank Statement, or Form 16. Prospera AI will automatically
             parse income, expenses, EMIs, savings and generate a financial health score.
           </p>
         </div>

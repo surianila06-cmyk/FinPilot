@@ -13,7 +13,7 @@ export default function Sidebar() {
     <aside className="w-64 glass-panel border-r border-slate-800 p-6 hidden lg:block">
       <div className="mb-8">
         <span className="text-xl font-extrabold text-slate-100 glow-text-gradient">
-          FinPilot <span className="text-blue-400">AI</span>
+          Prospera <span className="text-blue-400">AI</span>
         </span>
       </div>
       <nav className="space-y-2">

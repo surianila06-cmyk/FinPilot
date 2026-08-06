@@ -16,7 +16,7 @@ const FEATURES = [
     icon: FileText,
     color: "blue",
     title: "AI Document Parser",
-    desc: "Upload salary slips or bank statements. FinPilot extracts income, taxes, EMIs, and savings automatically using LLM intelligence.",
+    desc: "Upload salary slips or bank statements. Prospera extracts income, taxes, EMIs, and savings automatically using LLM intelligence.",
   },
   {
     icon: PieIcon,
@@ -34,7 +34,7 @@ const FEATURES = [
     icon: BarChart2,
     color: "amber",
     title: "SIP Wealth Projections",
-    desc: "See your money grow. FinPilot calculates 5, 10, and 20-year SIP projections using historical Nifty 50 CAGR benchmarks.",
+    desc: "See your money grow. Prospera calculates 5, 10, and 20-year SIP projections using historical Nifty 50 CAGR benchmarks.",
   },
   {
     icon: Coins,
@@ -46,7 +46,7 @@ const FEATURES = [
     icon: HomeIcon,
     color: "cyan",
     title: "Goal Planning Engine",
-    desc: "Planning a bike, car, house, or wedding? FinPilot calculates exactly how long it takes and how much to save monthly.",
+    desc: "Planning a bike, car, house, or wedding? Prospera calculates exactly how long it takes and how much to save monthly.",
   },
 ];
 
@@ -159,7 +159,7 @@ export default function Home() {
                   Test Your Financial Health Score
                 </h2>
                 <p className="text-sm text-slate-400 mt-2">
-                  Adjust the sliders to see how FinPilot scores your financial profile in real-time.
+                  Adjust the sliders to see how Prospera scores your financial profile in real-time.
                 </p>
               </div>
 
@@ -220,7 +220,7 @@ export default function Home() {
           {/* ── FEATURES GRID ─────────────────────────────────────────────── */}
           <section className="py-16 space-y-12">
             <div className="text-center max-w-2xl mx-auto">
-              <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">What FinPilot Does</span>
+              <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">What Prospera Does</span>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-100 mt-2">
                 Designed for Smarter Financial Decisions
               </h2>

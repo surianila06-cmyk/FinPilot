@@ -113,7 +113,7 @@ function clientFallbackChat(question: string, profile: Record<string, unknown>):
     };
   } else {
     return {
-      message: `💡 FinPilot Financial Snapshot:\n\nIncome: ₹${income.toLocaleString()} | Surplus: ₹${surplus.toLocaleString()}\nSavings: ₹${savings.toLocaleString()}\n\n• Save at least 20% of income monthly.\n• Maintain 6 months of expenses as emergency reserves.\n• Start a Nifty 50 Index Fund SIP.\n\nYou're on the right track — keep building! 🌟`,
+      message: `💡 Prospera Financial Snapshot:\n\nIncome: ₹${income.toLocaleString()} | Surplus: ₹${surplus.toLocaleString()}\nSavings: ₹${savings.toLocaleString()}\n\n• Save at least 20% of income monthly.\n• Maintain 6 months of expenses as emergency reserves.\n• Start a Nifty 50 Index Fund SIP.\n\nYou're on the right track — keep building! 🌟`,
     };
   }
 }

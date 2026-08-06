@@ -4,7 +4,7 @@ from app.main import app
 from app.services.health_score import calculate_financial_score
 from app.services.gemini_service import fallback_extract_profile
 
-class TestFinPilotBackend(unittest.TestCase):
+class TestProsperaBackend(unittest.TestCase):
     def setUp(self):
         self.client = TestClient(app)
 
